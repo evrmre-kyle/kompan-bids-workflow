@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsibility Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:"Poppins",system-ui,-apple-system,sans-serif;
+  --font-body:"Mulish",system-ui,-apple-system,sans-serif;
+  --font-label:"Mulish",system-ui,-apple-system,sans-serif;
+  --radius:18px;
+  --bg:oklch(0.975 0.005 250); --bg2:#ffffff; --panel:#ffffff; --panel-hi:oklch(0.965 0.006 250);
+  --ink:oklch(0.33 0.025 264); --ink-dim:oklch(0.49 0.022 264); --ink-faint:oklch(0.63 0.018 264);
+  --line:oklch(0.905 0.01 255);
+  --card-shadow:0 16px 32px -22px oklch(0.45 0.06 264/0.40), 0 2px 6px -3px oklch(0.45 0.06 264/0.16);
+  --card-shadow-hi:0 24px 44px -22px oklch(0.45 0.06 264/0.48), 0 3px 8px -3px oklch(0.45 0.06 264/0.20);
+}
+body[data-theme="dark"]{
+  --bg:oklch(0.18 0.022 264); --bg2:oklch(0.215 0.024 264); --panel:oklch(0.245 0.025 264); --panel-hi:oklch(0.30 0.028 264);
+  --ink:oklch(0.97 0.005 264); --ink-dim:oklch(0.74 0.018 264); --ink-faint:oklch(0.56 0.02 264); --line:oklch(0.36 0.025 264);
+  --card-shadow:0 16px 34px -20px oklch(0 0 0/0.78); --card-shadow-hi:0 24px 46px -20px oklch(0 0 0/0.85);
+}
+body[data-palette="pastel"]{ --sales:oklch(0.72 0.10 250); --bp:oklch(0.80 0.088 64); --design:oklch(0.78 0.088 158); --compliance:oklch(0.74 0.108 18); --decision:oklch(0.74 0.10 300); }
+body[data-palette="corporate"]{ --sales:oklch(0.56 0.10 250); --bp:oklch(0.66 0.10 72); --design:oklch(0.58 0.085 185); --compliance:oklch(0.53 0.12 20); --decision:oklch(0.56 0.09 300); }
+body[data-palette="sunset"]{ --sales:oklch(0.70 0.115 28); --bp:oklch(0.82 0.10 72); --design:oklch(0.74 0.10 352); --compliance:oklch(0.62 0.13 18); --decision:oklch(0.72 0.10 330); }
+body[data-palette="ocean"]{ --sales:oklch(0.64 0.11 238); --bp:oklch(0.73 0.085 205); --design:oklch(0.72 0.088 168); --compliance:oklch(0.62 0.10 272); --decision:oklch(0.66 0.10 290); }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in oklab,var(--ink) 7%,transparent) 1px, transparent 0) 0 0/26px 26px,
+    radial-gradient(1100px 700px at 10% 2%, color-mix(in oklab,var(--sales) 10%,transparent), transparent 60%),
+    radial-gradient(1000px 720px at 94% 26%, color-mix(in oklab,var(--bp) 9%,transparent), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;}
+body[data-bg="plain"]{background:var(--bg)}
+
+/* header */
+header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:14px 30px;background:color-mix(in oklab,var(--bg2) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--font-label);font-size:13px;font-weight:600;
+  color:var(--ink-dim);padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);transition:all .14s ease}
+.back:hover{color:var(--ink);border-color:color-mix(in oklab,var(--ink) 22%,var(--line));transform:translateX(-2px)}
+.htitle{display:flex;flex-direction:column;gap:2px;min-width:max-content}
+.htitle .eyebrow{font-family:var(--font-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:auto}
+.legend .lbl{font-family:var(--font-label);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase;margin-right:2px}
+.team{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;
+  background:color-mix(in oklab,var(--c) 15%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 34%,transparent);
+  font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink))}
+.team .dot{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.team[data-t="sales"]{--c:var(--sales)} .team[data-t="design"]{--c:var(--design)} .team[data-t="ops"]{--c:var(--decision)} .team[data-t="bp"]{--c:var(--bp)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:44px 30px 120px}
+
+/* section heads */
+.shead{margin:56px 0 22px}
+.shead:first-of-type{margin-top:8px}
+.shead .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:color-mix(in oklab,var(--sales) 45%,var(--ink-faint));margin-bottom:9px}
+.shead h2{font-family:var(--font-display);font-size:26px;font-weight:600;letter-spacing:-.015em;line-height:1.12;text-wrap:balance}
+.shead p{font-size:14.5px;color:var(--ink-dim);margin-top:8px;max-width:74ch}
+
+/* intro */
+.intro{margin-bottom:18px}
+.intro .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklab,var(--sales) 45%,var(--ink-faint));margin-bottom:12px}
+.intro h2{font-family:var(--font-display);font-size:36px;font-weight:600;letter-spacing:-.02em;line-height:1.08;margin-bottom:14px;text-wrap:balance}
+.intro p{font-size:15.5px;color:var(--ink-dim);max-width:70ch}
+
+/* lifecycle timeline */
+.timeline{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:26px 26px 22px;overflow:hidden}
+.tl-phases{display:grid;grid-template-columns:0.9fr 2.4fr 0.9fr;gap:14px;align-items:stretch}
+.phase{border-radius:14px;padding:14px 16px;position:relative}
+.phase .pname{font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.phase.pre{background:color-mix(in oklab,var(--sales) 14%,var(--panel));border:1px solid color-mix(in oklab,var(--sales) 32%,transparent)}
+.phase.pre .pname{color:color-mix(in oklab,var(--sales) 36%,var(--ink))}
+.phase.post{background:color-mix(in oklab,var(--design) 14%,var(--panel));border:1px solid color-mix(in oklab,var(--design) 32%,transparent)}
+.phase.post .pname{color:color-mix(in oklab,var(--design) 34%,var(--ink))}
+.phase.mid{background:color-mix(in oklab,var(--bp) 10%,var(--panel));border:1px solid color-mix(in oklab,var(--bp) 30%,transparent);padding-bottom:10px}
+.phase.mid .pname{color:color-mix(in oklab,var(--bp) 36%,var(--ink));margin-bottom:12px}
+.stages{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stage{background:var(--panel);border:1px solid color-mix(in oklab,var(--bp) 26%,var(--line));border-radius:10px;padding:10px 12px;text-align:center}
+.stage .sn{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--ink)}
+.stage .sd{font-size:11px;color:var(--ink-faint);margin-top:2px}
+.milestones{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.ms{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-label);font-size:11.5px;font-weight:600;color:var(--ink-dim);
+  background:var(--panel-hi);border:1px solid var(--line);border-radius:999px;padding:5px 12px}
+.ms .di{width:8px;height:8px;border-radius:2px;transform:rotate(45deg);background:var(--sales)}
+.ms:nth-child(2) .di{background:var(--bp)} .ms:nth-child(3) .di{background:var(--bp)} .ms:nth-child(4) .di{background:var(--bp)} .ms:nth-child(5) .di{background:var(--design)}
+.engage-note{margin-top:16px;display:flex;gap:12px;align-items:flex-start;background:color-mix(in oklab,var(--decision) 10%,var(--panel));
+  border:1px solid color-mix(in oklab,var(--decision) 28%,transparent);border-radius:12px;padding:14px 16px}
+.engage-note .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--decision);color:#fff;font-size:16px;font-weight:700}
+.engage-note p{font-size:13.5px;color:var(--ink-dim)}
+.engage-note b{color:var(--ink)}
+
+/* matrix */
+.part-label{display:flex;align-items:center;gap:12px;margin:30px 0 16px}
+.part-label .pl{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
+.part-label .ln{height:1px;background:var(--line);flex:1}
+.matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.matrix.tech{grid-template-columns:1fr}
+.tcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;display:flex;flex-direction:column}
+.tcard .accent{height:5px;background:var(--c)}
+.tcard[data-t="sales"]{--c:var(--sales)} .tcard[data-t="design"]{--c:var(--design)} .tcard[data-t="ops"]{--c:var(--decision)} .tcard[data-t="bp"]{--c:var(--bp)}
+.tcard .thead{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.tcard .tn{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:17px;font-weight:600;letter-spacing:-.01em}
+.tcard .tn .sw{width:12px;height:12px;border-radius:4px;background:var(--c)}
+.tcard .ts{font-size:12.5px;color:var(--ink-dim);margin-top:6px}
+.tbody{padding:14px 18px 18px;display:flex;flex-direction:column;gap:14px;flex:1}
+.grp .gl{font-family:var(--font-label);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:color-mix(in oklab,var(--c) 42%,var(--ink-faint));margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.grp .gl::before{content:"";width:14px;height:2px;border-radius:2px;background:color-mix(in oklab,var(--c) 60%,transparent)}
+.rlist{list-style:none;display:flex;flex-direction:column;gap:7px}
+.rlist li{position:relative;padding-left:19px;font-size:13.5px;color:var(--ink-dim);line-height:1.4}
+.rlist li::before{content:"";position:absolute;left:2px;top:8px;width:7px;height:7px;border-radius:50%;
+  background:color-mix(in oklab,var(--c) 35%,var(--panel));border:1.5px solid var(--c)}
+.rlist li b{color:var(--ink);font-weight:600}
+.tech-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:22px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-family:var(--font-label);font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:8px;
+  background:color-mix(in oklab,var(--c) 12%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 30%,transparent);
+  color:color-mix(in oklab,var(--c) 40%,var(--ink))}
+
+/* engagement avenues */
+.avenues{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.av{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;display:flex;flex-direction:column}
+.av[data-a="pre"]{--c:var(--decision)} .av[data-a="mgmt"]{--c:var(--bp)} .av[data-a="support"]{--c:var(--sales)}
+.av .ahead{padding:18px 20px;background:color-mix(in oklab,var(--c) 13%,var(--panel));border-bottom:1px solid color-mix(in oklab,var(--c) 26%,transparent)}
+.av .atag{display:inline-block;font-family:var(--font-label);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#fff;background:var(--c);padding:3px 10px;border-radius:999px;margin-bottom:9px}
+.av .at{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.av .asys{font-size:12px;color:color-mix(in oklab,var(--c) 38%,var(--ink));font-weight:600;margin-top:4px}
+.abody{padding:16px 20px 20px;display:flex;flex-direction:column;gap:13px;flex:1}
+.field .fl{font-family:var(--font-label);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px}
+.field p{font-size:13.5px;color:var(--ink-dim)}
+.field p b{color:var(--ink);font-weight:600}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.meta .m{flex:1 1 auto;background:var(--panel-hi);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.meta .m .ml{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+.meta .m .mv{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:2px}
+.wf{list-style:none;counter-reset:w;display:flex;flex-direction:column;gap:8px}
+.wf li{position:relative;padding-left:28px;font-size:13px;color:var(--ink-dim);line-height:1.4}
+.wf li::before{counter-increment:w;content:counter(w);position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--font-display);font-size:11px;font-weight:700;color:#fff;background:var(--c)}
+.owner-bar{margin-top:auto;font-family:var(--font-label);font-size:12px;font-weight:700;padding:9px 13px;border-radius:10px;
+  background:color-mix(in oklab,var(--c) 14%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 30%,transparent);color:color-mix(in oklab,var(--c) 38%,var(--ink))}
+
+/* decision rule */
+.rule{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}
+.rule .rc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:20px 22px}
+.rule .rc .q{font-family:var(--font-display);font-size:15.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.rule .rc .q .dia{flex:none;width:26px;height:26px;transform:rotate(45deg);border-radius:7px;background:var(--decision);display:grid;place-items:center}
+.rule .rc .q .dia span{transform:rotate(-45deg);color:#fff;font-weight:700;font-size:14px}
+.rule .rc p{font-size:13.5px;color:var(--ink-dim)}
+.rule .rc p b{color:var(--ink)}
+.rule .rc .arrow{font-weight:700;color:color-mix(in oklab,var(--bp) 40%,var(--ink))}
+
+/* takeaways */
+.takeaways{background:linear-gradient(135deg, color-mix(in oklab,var(--sales) 10%,var(--panel)), color-mix(in oklab,var(--bp) 9%,var(--panel)));
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:28px 30px}
+.takeaways h3{font-family:var(--font-display);font-size:19px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.takeaways h3 .star{color:var(--bp)}
+.tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px 26px}
+.tk{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:var(--ink-dim)}
+.tk .ck{flex:none;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:color-mix(in oklab,var(--design) 22%,var(--panel));
+  color:color-mix(in oklab,var(--design) 40%,var(--ink));font-size:13px;font-weight:700;margin-top:1px}
+.tk b{color:var(--ink);font-weight:600}
+.tk.flag .ck{background:color-mix(in oklab,var(--compliance) 20%,var(--panel));color:color-mix(in oklab,var(--compliance) 42%,var(--ink))}
+
+@media (max-width:1000px){ .matrix{grid-template-columns:1fr 1fr} .avenues{grid-template-columns:1fr} .tl-phases{grid-template-columns:1fr} .tech-grid{grid-template-columns:1fr} }
+@media (max-width:680px){ .matrix{grid-template-columns:1fr} .rule{grid-template-columns:1fr} .tk-grid{grid-template-columns:1fr} .stages{grid-template-columns:1fr} .intro h2{font-size:28px} }
+</style>
+</head>
+<body data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+
+<header>
+  <a class="back" href="index.html">← Operational Workflow</a>
+  <div class="htitle">
+    <span class="eyebrow">Bid &amp; Proposal · 2026</span>
+    <h1>Responsibility Matrix</h1>
+  </div>
+  <div class="legend">
+    <span class="lbl">Teams</span>
+    <span class="team" data-t="sales"><span class="dot"></span>Sales</span>
+    <span class="team" data-t="design"><span class="dot"></span>Design &amp; Visualization</span>
+    <span class="team" data-t="ops"><span class="dot"></span>Sales Operations</span>
+    <span class="team" data-t="bp"><span class="dot"></span>Bid &amp; Proposal</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <div class="k">Bid &amp; Proposal Team · who does what</div>
+    <h2>Responsibility Matrix</h2>
+    <p>How responsibilities are divided across Sales, Design &amp; Visualization, Sales Operations and the Bid &amp; Proposal team through the bid lifecycle — plus the three avenues for requesting B&amp;P support and the rules that govern them.</p>
+  </section>
+
+  <!-- LIFECYCLE -->
+  <div class="shead">
+    <div class="k">Lifecycle</div>
+    <h2>Where B&amp;P plugs into the bid</h2>
+    <p>The Bid &amp; Proposal team is involved across the entire lifecycle — from pre-bid groundwork through submission and the post-bid handoff.</p>
+  </div>
+  <div class="timeline">
+    <div class="tl-phases">
+      <div class="phase pre"><div class="pname">Pre-Bid</div></div>
+      <div class="phase mid">
+        <div class="pname">Bid Lifecycle</div>
+        <div class="stages">
+          <div class="stage"><div class="sn">Analyze</div><div class="sd">Review &amp; plan</div></div>
+          <div class="stage"><div class="sn">Develop</div><div class="sd">Draft proposal</div></div>
+          <div class="stage"><div class="sn">Package</div><div class="sd">Assemble &amp; submit</div></div>
+        </div>
+      </div>
+      <div class="phase post"><div class="pname">Post-Bid</div></div>
+    </div>
+    <div class="milestones">
+      <span class="ms"><span class="di"></span>Bid Request</span>
+      <span class="ms"><span class="di"></span>Released</span>
+      <span class="ms"><span class="di"></span>Proposal</span>
+      <span class="ms"><span class="di"></span>Submission</span>
+      <span class="ms"><span class="di"></span>Awarded — PM Handoff</span>
+    </div>
+    <div class="engage-note">
+      <div class="ic">✦</div>
+      <p><b>B&amp;P engagement isn't limited to bids.</b> Even when an opportunity isn't going out to bid, the team can assist with activities like vendor registration or prequalification forms, product specifications, W9s, and COIs.</p>
+    </div>
+  </div>
+
+  <!-- MATRIX -->
+  <div class="shead">
+    <div class="k">Who does what</div>
+    <h2>Bid &amp; Proposal leads — responsibilities by team</h2>
+    <p>Responsibilities split into the <b>commercial</b> work (customer strategy, design, pricing) and the <b>technical</b> work (proposal management and response), owned by the Bid &amp; Proposal team.</p>
+  </div>
+
+  <div class="part-label"><span class="pl">Commercial Part</span><span class="ln"></span></div>
+  <div class="matrix">
+    <div class="tcard" data-t="sales">
+      <div class="accent"></div>
+      <div class="thead"><div class="tn"><span class="sw"></span>Sales</div><div class="ts">Owns the customer relationship and the strategy to win.</div></div>
+      <div class="tbody">
+        <div class="grp">
+          <div class="gl">Pre-Bid</div>
+          <ul class="rlist">
+            <li><b>Capture Manager</b> — bridges business development and proposal management through customer relationships</li>
+            <li>A &amp; B client relationships</li>
+            <li>Attend customer pre-bid meeting (when applicable)</li>
+            <li>Influencing RFP approach / direction</li>
+            <li>Securing pre-specifications</li>
+          </ul>
+        </div>
+        <div class="grp">
+          <div class="gl">Live-Bid</div>
+          <ul class="rlist">
+            <li>Measure site &amp; take photos</li>
+            <li>Create 2D design case</li>
+            <li>Initial product selection and D&amp;V meeting</li>
+            <li>Create quote case / quote brief</li>
+            <li>Attend kickoff and check-in calls</li>
+            <li>Set the strategy to win and give direction</li>
+            <li>Design rationale</li>
+            <li>Margin approval (RSM / BU Director)</li>
+            <li>Review proposal package</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tcard" data-t="design">
+      <div class="accent"></div>
+      <div class="thead"><div class="tn"><span class="sw"></span>Design &amp; Visualization</div><div class="ts">Turns requirements into 2D / 3D designs and visuals.</div></div>
+      <div class="tbody">
+        <div class="grp">
+          <div class="gl">Design deliverables</div>
+          <ul class="rlist">
+            <li>Review design requirements [from bid analysis]</li>
+            <li>Confirm right products after review with Sales</li>
+            <li>Liaise with KDS on bespoke equipment</li>
+            <li>Cost estimates for SP</li>
+            <li>Create Pcon equipment</li>
+            <li>Prepare design for the project</li>
+            <li>Produce 2D site plan</li>
+            <li>Generate ADA evaluation</li>
+            <li>Convert 2D case into 3D case</li>
+            <li>Prepare 3D visuals</li>
+            <li>Produce 3D presentation [per bid analysis]</li>
+            <li>Design approach</li>
+            <li>Play value callouts</li>
+            <li>Age group callouts</li>
+            <li>Product images on 2Ds</li>
+            <li>Posters (if applicable)</li>
+            <li>Gather product sheets</li>
+            <li>Prepare 3rd party product sheets</li>
+            <li>Project case studies</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tcard" data-t="ops">
+      <div class="accent"></div>
+      <div class="thead"><div class="tn"><span class="sw"></span>Sales Operations</div><div class="ts">Scopes budget, third-party pricing and margin.</div></div>
+      <div class="tbody">
+        <div class="grp">
+          <div class="gl">Commercial support</div>
+          <ul class="rlist">
+            <li>Review scope and budget requirements [from bid analysis]</li>
+            <li>Gather any third-party pricing</li>
+            <li>Complete sales proposal</li>
+            <li>Generate margin report</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-label"><span class="pl">Technical Part</span><span class="ln"></span></div>
+  <div class="matrix tech">
+    <div class="tcard" data-t="bp">
+      <div class="accent"></div>
+      <div class="thead"><div class="tn"><span class="sw"></span>Bid &amp; Proposal Team</div><div class="ts">Owns end-to-end proposal management and the technical response — from inbound tender to post-bid tracking.</div></div>
+      <div class="tbody">
+        <div class="tech-grid">
+          <div class="grp">
+            <div class="gl">Proposal management</div>
+            <ul class="rlist">
+              <li>Main point of contact for inbound tenders</li>
+              <li>Attend customer pre-bid meeting (virtual)</li>
+              <li>Complete authorization to proceed (prequalification, vendor applications)</li>
+              <li>Download all bid documents / create project folder (SharePoint)</li>
+              <li>Initial review (RFP summary)</li>
+              <li>Prepare review discussion with Sales</li>
+              <li>Read all tender documents</li>
+              <li>Create analysis workbook (summary, compliance, D&amp;V &amp; PSC requirements, outline)</li>
+              <li>Load the opportunity to CRM</li>
+              <li>Create / maintain bid case</li>
+              <li>Run the kickoff meeting and check-in calls (cross-functional team)</li>
+              <li>Circulate / respond to Q&amp;As from portals and customer</li>
+              <li>Complete customer forms (price docs, gov't forms, questionnaires)</li>
+              <li>Collate bid data &amp; gather technical requirements</li>
+              <li>Produce proposal package</li>
+              <li>Proposal review (manager / peer)</li>
+              <li>Proposal upload (digital) / binding (physical)</li>
+              <li>Post-bid meeting, tracking and customer feedback</li>
+            </ul>
+          </div>
+          <div class="grp">
+            <div class="gl">Examples of technical requirements</div>
+            <div class="chips">
+              <span class="chip">Product Sheets</span>
+              <span class="chip">Resource Plan</span>
+              <span class="chip">Statements / Summaries / Cover Letter</span>
+              <span class="chip">References &amp; Photos</span>
+              <span class="chip">Project Team / Resume / Bios</span>
+              <span class="chip">Timeline Creation</span>
+              <span class="chip">Methodology &amp; Approach</span>
+              <span class="chip">Core Competencies</span>
+              <span class="chip">Company Structure</span>
+              <span class="chip">Warranties &amp; Certifications</span>
+              <span class="chip">Bid Bonds</span>
+              <span class="chip">Insurance</span>
+            </div>
+            <p style="font-size:12px;color:var(--ink-faint);margin-top:12px;line-height:1.5">References &amp; photos are produced with Sales, Design and/or Marketing input; timeline creation with PM input.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENGAGEMENT AVENUES -->
+  <div class="shead">
+    <div class="k">Scope of services</div>
+    <h2>Three avenues for B&amp;P engagement</h2>
+    <p>How — and when — to request the Bid &amp; Proposal team, depending on where you are in the lifecycle and who owns the bid.</p>
+  </div>
+  <div class="avenues">
+    <div class="av" data-a="pre">
+      <div class="ahead"><span class="atag">Pre-Bid</span><div class="at">Prequalification Task</div><div class="asys">Monday.com</div></div>
+      <div class="abody">
+        <div class="field"><div class="fl">Definition</div><p>A task-work request that occurs <b>before</b> an RFP has been released.</p></div>
+        <div class="field"><div class="fl">Example</div><p>Preliminary paperwork to become an approved vendor — vendor registrations and pre-qualifications.</p></div>
+        <div class="meta">
+          <div class="m"><div class="ml">Request via</div><div class="mv">Pre-Bid Task Request Form</div></div>
+          <div class="m"><div class="ml">Turnaround</div><div class="mv">~2 weeks</div></div>
+        </div>
+        <div class="field"><div class="fl">Workflow</div>
+          <ol class="wf">
+            <li>Requestor fills out the request form correctly</li>
+            <li>Request lands in the B&amp;P queue (Monday.com)</li>
+            <li>B&amp;P rep self-assigns — emails the requestor</li>
+            <li>B&amp;P rep completes the work — emails the requestor</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="av" data-a="mgmt">
+      <div class="ahead"><span class="atag">CRM Case</span><div class="at">Bid Management</div><div class="asys">CRM Dynamics 365</div></div>
+      <div class="abody">
+        <div class="field"><div class="fl">Definition</div><p>Bid &amp; Proposal <b>owns</b> the review, planning and execution of our proposal to a customer.</p></div>
+        <div class="field"><div class="fl">Example</div><p>When Kompan is the prime bidder, or a high-value project that requires extensive review.</p></div>
+        <div class="meta">
+          <div class="m"><div class="ml">Request via</div><div class="mv">“Bid Management” Case</div></div>
+          <div class="m"><div class="ml">Turnaround</div><div class="mv">2 weeks min.*</div></div>
+        </div>
+        <div class="field"><div class="fl">Workflow</div>
+          <ol class="wf">
+            <li>Requestor opens a “Bid Management” case off the Opportunity — <b>leave stage as ‘Identify’</b></li>
+            <li>B&amp;P self-assigns within 48 hours; analyses documents and schedules a kickoff call to review requirements, plan and timeline</li>
+            <li>B&amp;P oversees submission and tracks until awarded</li>
+          </ol>
+        </div>
+        <div class="owner-bar">⬤ Bid &amp; Proposal owns the bid process</div>
+      </div>
+    </div>
+
+    <div class="av" data-a="support">
+      <div class="ahead"><span class="atag">CRM Case</span><div class="at">Bid Support</div><div class="asys">CRM Dynamics 365</div></div>
+      <div class="abody">
+        <div class="field"><div class="fl">Definition</div><p>A task-work request that occurs <b>after</b> a bid is released. Sales owns the bid but needs B&amp;P support.</p></div>
+        <div class="field"><div class="fl">Example</div><p>Filling out forms, gathering signatures, or compiling cut sheets. If more than one item is required, B&amp;P may flip the case to “Bid Management”.</p></div>
+        <div class="meta">
+          <div class="m"><div class="ml">Request via</div><div class="mv">“Bid Support” Case</div></div>
+          <div class="m"><div class="ml">Turnaround</div><div class="mv">1–2 weeks**</div></div>
+        </div>
+        <div class="field"><div class="fl">Workflow</div>
+          <ol class="wf">
+            <li>Requestor opens a “Bid Support” case off the Opportunity and gives direction on what's needed</li>
+            <li>B&amp;P self-assigns and completes the work as directed</li>
+            <li>B&amp;P uploads to the Box folder and closes the case</li>
+          </ol>
+        </div>
+        <div class="owner-bar">⬤ Sales owns the bid process</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rule">
+    <div class="rc">
+      <div class="q"><span class="dia"><span>?</span></span>Is there an Opportunity and/or Bid Documents?</div>
+      <p><b>Yes →</b> open a <b>CRM Case</b> (Bid Management or Bid Support). <br><b>No →</b> it's a <b>Pre-Bid Task</b> on Monday.com.</p>
+    </div>
+    <div class="rc">
+      <div class="q"><span class="dia"><span>?</span></span>Manage or support?</div>
+      <p><b>Manage</b> = end-to-end ownership — compliance reviews, win strategy and proposal development; takes weeks. <b>Support</b> = a discrete, task-based assist; <b>Sales owns the bid</b>.</p>
+    </div>
+  </div>
+
+  <!-- TAKEAWAYS -->
+  <div class="shead">
+    <div class="k">Remember</div>
+    <h2>Key takeaways</h2>
+  </div>
+  <div class="takeaways">
+    <h3><span class="star">★</span>The essentials</h3>
+    <div class="tk-grid">
+      <div class="tk"><span class="ck">✓</span><div><b>SharePoint is launched</b> — project folders live there.</div></div>
+      <div class="tk"><span class="ck">✓</span><div><b>Three avenues</b> for B&amp;P engagement: Prequalification (Monday.com), Bid Support (CRM), Bid Management (CRM).</div></div>
+      <div class="tk"><span class="ck">✓</span><div>If there's an <b>Opportunity and/or Bid Documents</b>, open a CRM Case — otherwise it's a Pre-Bid Task.</div></div>
+      <div class="tk"><span class="ck">✓</span><div><b>Sales owns</b> the bid process for <b>Bid Support</b> cases.</div></div>
+      <div class="tk"><span class="ck">✓</span><div><b>Bid &amp; Proposal owns</b> the bid process for <b>Bid Management</b> cases.</div></div>
+      <div class="tk flag"><span class="ck">!</span><div>Leave <b>all cases in the IDENTIFY stage</b>.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="tweaks-root"></div>
+
+<script>
+const TWK_FONTS={ soft:['"Poppins"','"Mulish"'], rounded:['"Nunito"','"Nunito"'], modern:['"Space Grotesk"','"Space Grotesk"'] };
+window.applyWorkflowTweaks=function(t){
+  const b=document.body, r=document.documentElement.style;
+  if(t.theme) b.dataset.theme=t.theme;
+  if(t.palette) b.dataset.palette=t.palette;
+  if(t.cards) b.dataset.cards=t.cards;
+  if(t.bg) b.dataset.bg=t.bg;
+  if(t.radius!=null) r.setProperty('--radius', t.radius+'px');
+  const f=TWK_FONTS[t.font]||TWK_FONTS.soft;
+  r.setProperty('--font-display', f[0]+',system-ui,sans-serif');
+  r.setProperty('--font-body', f[1]+',system-ui,sans-serif');
+  r.setProperty('--font-label', f[1]+',system-ui,sans-serif');
+};
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="workflow-tweaks.jsx"></script>
+</body>
+</html>
