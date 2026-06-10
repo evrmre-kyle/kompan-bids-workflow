@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intake &amp; Case Creation Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font-display:"Poppins",system-ui,-apple-system,sans-serif;
+  --font-body:"Mulish",system-ui,-apple-system,sans-serif;
+  --font-label:"Mulish",system-ui,-apple-system,sans-serif;
+  --radius:18px;
+
+  --bg:        oklch(0.975 0.005 250);
+  --bg2:       #ffffff;
+  --panel:     #ffffff;
+  --panel-hi:  oklch(0.965 0.006 250);
+  --ink:       oklch(0.33 0.025 264);
+  --ink-dim:   oklch(0.49 0.022 264);
+  --ink-faint: oklch(0.63 0.018 264);
+  --line:      oklch(0.905 0.01 255);
+  --card-shadow:    0 16px 32px -22px oklch(0.45 0.06 264/0.40), 0 2px 6px -3px oklch(0.45 0.06 264/0.16);
+  --card-shadow-hi: 0 24px 44px -22px oklch(0.45 0.06 264/0.48), 0 3px 8px -3px oklch(0.45 0.06 264/0.20);
+  --tint-bg:9%; --tint-border:34%;
+}
+body[data-theme="dark"]{
+  --bg:        oklch(0.18 0.022 264);
+  --bg2:       oklch(0.215 0.024 264);
+  --panel:     oklch(0.245 0.025 264);
+  --panel-hi:  oklch(0.30 0.028 264);
+  --ink:       oklch(0.97 0.005 264);
+  --ink-dim:   oklch(0.74 0.018 264);
+  --ink-faint: oklch(0.56 0.02 264);
+  --line:      oklch(0.36 0.025 264);
+  --card-shadow:    0 16px 34px -20px oklch(0 0 0/0.78);
+  --card-shadow-hi: 0 24px 46px -20px oklch(0 0 0/0.85);
+  --tint-bg:14%; --tint-border:42%;
+}
+body[data-palette="pastel"]{ --sales:oklch(0.72 0.10 250); --bp:oklch(0.80 0.088 64); --design:oklch(0.78 0.088 158); --compliance:oklch(0.74 0.108 18); --decision:oklch(0.80 0.078 288); }
+body[data-palette="corporate"]{ --sales:oklch(0.56 0.10 250); --bp:oklch(0.66 0.10 72); --design:oklch(0.58 0.085 185); --compliance:oklch(0.53 0.12 20); --decision:oklch(0.60 0.07 268); }
+body[data-palette="sunset"]{ --sales:oklch(0.70 0.115 28); --bp:oklch(0.82 0.10 72); --design:oklch(0.74 0.10 352); --compliance:oklch(0.62 0.13 18); --decision:oklch(0.80 0.085 52); }
+body[data-palette="ocean"]{ --sales:oklch(0.64 0.11 238); --bp:oklch(0.73 0.085 205); --design:oklch(0.72 0.088 168); --compliance:oklch(0.62 0.10 272); --decision:oklch(0.70 0.08 218); }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in oklab,var(--ink) 7%,transparent) 1px, transparent 0) 0 0/26px 26px,
+    radial-gradient(1100px 700px at 12% 4%, color-mix(in oklab,var(--sales) 10%,transparent), transparent 60%),
+    radial-gradient(1000px 720px at 92% 30%, color-mix(in oklab,var(--design) 9%,transparent), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+body[data-bg="plain"]{ background:var(--bg); }
+
+/* ---------- top bar ---------- */
+header{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:14px 30px;
+  background:color-mix(in oklab,var(--bg2) 86%,transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+  font-family:var(--font-label);font-size:13px;font-weight:600;color:var(--ink-dim);
+  padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);transition:all .14s ease}
+.back:hover{color:var(--ink);border-color:color-mix(in oklab,var(--ink) 22%,var(--line));transform:translateX(-2px)}
+.htitle{display:flex;flex-direction:column;gap:2px;min-width:max-content}
+.htitle .eyebrow{font-family:var(--font-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:auto}
+.legend .lbl{font-family:var(--font-label);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase;margin-right:2px}
+.role{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;
+  background:color-mix(in oklab,var(--c) 15%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 34%,transparent);
+  font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink))}
+.role .dot{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.role[data-r="coord"]{--c:var(--sales)} .role[data-r="analyst"]{--c:var(--bp)}
+.role[data-r="pc"]{--c:var(--design)} .role[data-r="dsr"]{--c:var(--compliance)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1080px;margin:0 auto;padding:46px 30px 120px}
+.intro{margin-bottom:46px}
+.intro .kick{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklab,var(--sales) 45%,var(--ink-faint));margin-bottom:12px}
+.intro h2{font-family:var(--font-display);font-size:34px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px;text-wrap:balance}
+.intro p{font-size:15.5px;color:var(--ink-dim);max-width:60ch}
+.intro .nested-note{margin-top:16px;display:inline-flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;
+  color:color-mix(in oklab,var(--sales) 38%,var(--ink));background:color-mix(in oklab,var(--sales) 12%,var(--panel));
+  border:1px solid color-mix(in oklab,var(--sales) 30%,transparent);padding:9px 15px;border-radius:12px}
+
+/* track headers */
+.track{margin-top:30px}
+.track-head{display:flex;align-items:center;gap:16px;margin:54px 0 28px;padding-bottom:16px;border-bottom:2px solid var(--line)}
+.track-badge{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  font-family:var(--font-display);font-size:20px;font-weight:700;color:#fff;
+  background:linear-gradient(135deg, color-mix(in oklab,var(--tc) 90%,#fff), var(--tc));box-shadow:var(--card-shadow)}
+.track-head .tt{font-family:var(--font-display);font-size:23px;font-weight:600;letter-spacing:-.01em}
+.track-head .ts{font-size:13.5px;color:var(--ink-dim);margin-top:2px}
+.track[data-tc="coord"]{--tc:var(--sales)} .track[data-tc="pc"]{--tc:var(--design)} .track[data-tc="dq"]{--tc:var(--compliance)}
+
+/* steps */
+.steps{position:relative;display:flex;flex-direction:column;gap:18px}
+.steps::before{content:"";position:absolute;left:21px;top:18px;bottom:18px;width:2px;
+  background:linear-gradient(var(--line),var(--line));z-index:0}
+.step{position:relative;z-index:1;display:grid;grid-template-columns:44px 1fr;gap:18px;align-items:start}
+.snum{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--font-display);font-size:16px;font-weight:700;color:#fff;background:var(--sc,var(--sales));
+  box-shadow:0 0 0 5px var(--bg), var(--card-shadow)}
+.step[data-r="coord"]{--sc:var(--sales)} .step[data-r="analyst"]{--sc:var(--bp)}
+.step[data-r="pc"]{--sc:var(--design)} .step[data-r="dsr"]{--sc:var(--compliance)}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--card-shadow)}
+.scard .sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.scard .stitle{font-family:var(--font-display);font-size:17.5px;font-weight:600;letter-spacing:-.005em}
+.rtag{font-family:var(--font-label);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 9px;border-radius:7px;background:color-mix(in oklab,var(--rc) 16%,var(--panel));
+  border:1px solid color-mix(in oklab,var(--rc) 36%,transparent);color:color-mix(in oklab,var(--rc) 40%,var(--ink))}
+.rtag[data-r="coord"]{--rc:var(--sales)} .rtag[data-r="analyst"]{--rc:var(--bp)}
+.rtag[data-r="pc"]{--rc:var(--design)} .rtag[data-r="dsr"]{--rc:var(--compliance)}
+.scard p{font-size:14.5px;color:var(--ink-dim);margin-bottom:4px}
+.scard p .hl{color:var(--ink);font-weight:600}
+.scard ul{margin:6px 0 2px;padding-left:18px}
+.scard ul li{font-size:14px;color:var(--ink-dim);margin-bottom:5px}
+.scard ul li::marker{color:color-mix(in oklab,var(--sc,var(--sales)) 60%,var(--ink-faint))}
+.fieldnote{margin-top:10px;font-size:12.5px;color:var(--ink-faint);background:var(--panel-hi);border:1px solid var(--line);
+  border-radius:10px;padding:10px 13px;line-height:1.5}
+.fieldnote b{color:var(--ink-dim)}
+
+/* screenshots */
+.shots{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px}
+.shot{flex:1 1 320px;min-width:0;border-radius:13px;overflow:hidden;border:1px solid var(--line);
+  box-shadow:var(--card-shadow);background:var(--panel-hi);cursor:zoom-in;transition:transform .15s ease, box-shadow .15s ease}
+.shot:hover{transform:translateY(-3px);box-shadow:var(--card-shadow-hi)}
+.shot.wide{flex-basis:100%}
+.shot.tall{flex:0 1 360px}
+.shot .bar{height:30px;display:flex;align-items:center;gap:7px;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+.shot .bar .d{width:9px;height:9px;border-radius:50%}
+.shot .bar .d:nth-child(1){background:oklch(0.72 0.16 25)} .shot .bar .d:nth-child(2){background:oklch(0.82 0.13 85)} .shot .bar .d:nth-child(3){background:oklch(0.75 0.13 150)}
+.shot .bar .t{margin-left:6px;font-family:var(--font-label);font-size:11px;font-weight:600;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shot img{display:block;width:100%;height:auto;background:#fff}
+.shot .cap{font-size:11.5px;color:var(--ink-faint);padding:8px 12px;border-top:1px solid var(--line);font-style:italic}
+
+/* small UI crop callouts */
+.crops{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;align-items:flex-end}
+.crop{display:flex;flex-direction:column;gap:7px;cursor:zoom-in}
+.crop img{display:block;max-width:260px;max-height:170px;width:auto;border-radius:9px;border:1px solid var(--line);
+  box-shadow:var(--card-shadow);background:#fff;transition:transform .15s ease}
+.crop:hover img{transform:translateY(-2px)}
+.crop .cl{font-family:var(--font-label);font-size:11px;font-weight:600;color:var(--ink-faint)}
+
+/* decision + lanes */
+.decision-band{margin:8px 0 6px;display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:var(--radius);
+  background:color-mix(in oklab,var(--decision) 14%,var(--panel));border:1px solid color-mix(in oklab,var(--decision) 36%,transparent)}
+.decision-band .dmark{flex:none;width:38px;height:38px;transform:rotate(45deg);border-radius:8px;
+  background:var(--decision);display:grid;place-items:center}
+.decision-band .dmark span{transform:rotate(-45deg);font-family:var(--font-display);font-weight:700;color:#fff;font-size:17px}
+.decision-band .dt{font-family:var(--font-display);font-size:16.5px;font-weight:600}
+.decision-band .ds{font-size:13px;color:var(--ink-dim);margin-top:2px}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:18px 0 6px}
+.lane{border-radius:var(--radius);border:1px solid var(--line);background:color-mix(in oklab,var(--lc) 6%,var(--panel));overflow:hidden}
+.lane.exists{--lc:var(--design)} .lane.create{--lc:var(--bp)}
+.lane-head{display:flex;align-items:center;gap:10px;padding:13px 18px;background:color-mix(in oklab,var(--lc) 16%,var(--panel));
+  border-bottom:1px solid color-mix(in oklab,var(--lc) 26%,transparent)}
+.lane-head .pill{font-family:var(--font-label);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 10px;border-radius:999px;background:var(--lc);color:#fff}
+.lane-head .lt{font-family:var(--font-display);font-size:15.5px;font-weight:600}
+.lane-body{padding:16px 18px;display:flex;flex-direction:column;gap:16px}
+.lstep{position:relative;padding-left:30px}
+.lstep::before{counter-increment:ls;content:counter(ls);position:absolute;left:0;top:0;width:21px;height:21px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--font-display);font-size:11px;font-weight:700;color:#fff;background:var(--lc)}
+.lane-body{counter-reset:ls}
+.lstep .lst{font-family:var(--font-display);font-size:14.5px;font-weight:600;margin-bottom:3px}
+.lstep p{font-size:13.5px;color:var(--ink-dim)}
+.lstep .shots{margin-top:12px}
+.converge{margin:18px 0 6px;display:flex;align-items:center;justify-content:center;gap:12px;padding:15px 22px;border-radius:var(--radius);
+  background:color-mix(in oklab,var(--design) 13%,var(--panel));border:1px solid color-mix(in oklab,var(--design) 34%,transparent);text-align:center}
+.converge .ct{font-family:var(--font-display);font-size:15px;font-weight:600}
+.converge a{color:color-mix(in oklab,var(--design) 36%,var(--ink));font-weight:700;text-decoration:none;border-bottom:2px solid color-mix(in oklab,var(--design) 40%,transparent)}
+.converge a:hover{border-color:var(--design)}
+
+/* reason codes */
+.codes{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.codes .code{font-family:var(--font-label);font-size:12px;font-weight:600;padding:6px 12px;border-radius:9px;
+  background:color-mix(in oklab,var(--compliance) 12%,var(--panel));border:1px solid color-mix(in oklab,var(--compliance) 30%,transparent);
+  color:color-mix(in oklab,var(--compliance) 38%,var(--ink))}
+.codes .code small{display:block;font-weight:500;font-size:10.5px;color:var(--ink-faint);margin-top:1px}
+
+/* lightbox */
+.lb{position:fixed;inset:0;z-index:100;background:oklch(0.2 0.02 264/0.82);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+.lb.on{display:flex}
+.lb img{max-width:96vw;max-height:92vh;border-radius:12px;box-shadow:0 30px 80px -20px oklch(0 0 0/0.7);background:#fff}
+.lb .x{position:fixed;top:22px;right:26px;width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--panel);color:var(--ink);font-size:20px;box-shadow:var(--card-shadow)}
+
+@media (max-width:760px){
+  .lanes{grid-template-columns:1fr}
+  .intro h2{font-size:27px}
+  .step{grid-template-columns:36px 1fr;gap:13px}
+  .snum{width:36px;height:36px;font-size:14px}
+  .steps::before{left:17px}
+}
+</style>
+</head>
+<body data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+
+<header>
+  <a class="back" href="Operational Workflow Chart.html">← Operational Workflow</a>
+  <div class="htitle">
+    <span class="eyebrow">Bid &amp; Proposal · SOP 2026</span>
+    <h1>Intake &amp; Case Creation Playbook</h1>
+  </div>
+  <div class="legend">
+    <span class="lbl">Roles</span>
+    <span class="role" data-r="coord"><span class="dot"></span>Coordinator</span>
+    <span class="role" data-r="analyst"><span class="dot"></span>Analyst / B&amp;P</span>
+    <span class="role" data-r="pc"><span class="dot"></span>PC / PSC</span>
+    <span class="role" data-r="dsr"><span class="dot"></span>DSR</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <div class="kick">Nested process · zooms into Step 01 of the operational workflow</div>
+    <h2>How opportunities are captured &amp; cases created</h2>
+    <p>The operational workflow opens with <strong>RFP Intake &amp; Opportunity Registration</strong>. This playbook details the hands-on mechanics behind that step — finding signals in Starbridge, deciding whether an opportunity already lives in CRM, creating leads and bid cases in Dynamics 365, and spinning up contract cases — captured screen-by-screen from the 2026 B&amp;P SOP.</p>
+    <a class="nested-note" href="Operational Workflow Chart.html#rfp">↖ Returns to “RFP Intake” on the main chart</a>
+  </section>
+
+  <!-- ============ TRACK 1 ============ -->
+  <div class="track" data-tc="coord">
+    <div class="track-head">
+      <div class="track-badge">A</div>
+      <div>
+        <div class="tt">Capture Coordinator — Finding &amp; Creating Leads</div>
+        <div class="ts">From a raw Starbridge signal to a qualified opportunity in CRM</div>
+      </div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step" data-r="coord">
+        <div class="snum">1</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Navigate Starbridge</span><span class="rtag" data-r="coord">Coordinator</span></div>
+          <p>Log in to Starbridge and open <span class="hl">Bridges</span> from the left-hand ribbon, then select the <span class="hl">BP-US Playground RFP Opportunities</span> bridge. What's listed are all the signals — i.e. RFP opportunities — that might be applicable to Kompan.</p>
+          <div class="crops">
+            <figure class="crop"><img src="sop-assets/image11.png" alt="Bridges in left ribbon"><figcaption class="cl">Bridges · left ribbon</figcaption></figure>
+          </div>
+          <div class="shots">
+            <figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Starbridge — BP-US Playground RFP Opportunities</span></div><img src="sop-assets/image12.png" alt="Starbridge bridge signals table"><figcaption class="cap">Figure 1 — Bridges page on Starbridge: every row is a signal (RFP opportunity).</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-r="coord">
+        <div class="snum">2</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Vet &amp; prioritize signals</span><span class="rtag" data-r="coord">Coordinator</span></div>
+          <p>Prioritize signals by <span class="hl">RFP Pre-Screening Score</span>, then review each project summary. A higher score doesn't necessarily mean a valid opportunity — vet every signal at a high level before actioning.</p>
+          <ul>
+            <li>Use the <span class="hl">Ask Starbridge</span> chat to learn more about a project.</li>
+            <li>If no files are linked, the Pre-Screening Score will say so. Identify the signal's source, register for the bid documents, or email <b>support@starbridge.ai</b> / <b>daniel@starbridge.ai</b> with the Buyer Name to have them uploaded on the back end.</li>
+          </ul>
+          <div class="shots">
+            <figure class="shot tall"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Starbridge — Signal Review</span></div><img src="sop-assets/image14.png" alt="Signal review page with Ask Starbridge chat"><figcaption class="cap">Signal detail — Files to download (lower left) and the Ask Starbridge chat (right).</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="step" data-r="coord">
+        <div class="snum">3</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Assign the signal to yourself</span><span class="rtag" data-r="coord">Coordinator</span></div>
+          <p>Claim the signal in Starbridge so the team knows it's being worked, then create the link within Dynamics 365 (CRM).</p>
+          <div class="shots">
+            <figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Starbridge — Assigned To</span></div><img src="sop-assets/image13.png" alt="Assign signal to self"></figure>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-band">
+        <div class="dmark"><span>?</span></div>
+        <div>
+          <div class="dt">Does this opportunity already exist in CRM?</div>
+          <div class="ds">Search Dynamics 365 by Buyer Name to find out — then follow the matching lane below.</div>
+        </div>
+      </div>
+      <div class="crops">
+        <figure class="crop"><img src="sop-assets/image15.png" alt="Search by buyer name"><figcaption class="cl">Search by Buyer Name</figcaption></figure>
+        <figure class="crop"><img src="sop-assets/image17.png" alt="Search results row"><figcaption class="cl">Matching account result</figcaption></figure>
+      </div>
+
+      <div class="lanes">
+        <!-- Lane A: exists -->
+        <div class="lane exists">
+          <div class="lane-head"><span class="pill">Yes</span><span class="lt">Opportunity exists</span></div>
+          <div class="lane-body">
+            <div class="lstep">
+              <div class="lst">Set Buying Process = “Tenders”</div>
+              <p>Open the Opportunity and update the Buying Process field.</p>
+              <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Opportunity</span></div><img src="sop-assets/image18.png" alt="Buying Process set to Tenders"><figcaption class="cap">Figure 2 — Buying Process = “Tenders”.</figcaption></figure></div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Upload bid documents to Box</div>
+              <p>File map: <span class="hl">Presales › Bid › Bid Documents</span>.</p>
+              <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 → Box</span></div><img src="sop-assets/image19.png" alt="Open Box for uploading"><figcaption class="cap">Figure 3 — Click the highlighted option to reach Box for uploading.</figcaption></figure></div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Open a Bid Management Case</div>
+              <div class="fieldnote">
+                Title must start with <b>“RFP Review:”</b> + project name · Group = <b>Sales Support</b> · Type = <b>Bid Management</b> · Resolve By = <b>proposal due date</b> · Follow Up By = <b>3 business days out</b> · Requested By &amp; Assigned to Others = <b>you</b>. Add a description if anything is noteworthy for the Analyst.
+              </div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Analyst picks up the case</div>
+              <p>The Analyst assigns themselves to the Coordinator-created case on the B&amp;P Dashboard.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lane B: create -->
+        <div class="lane create">
+          <div class="lane-head"><span class="pill">No</span><span class="lt">Create a Lead</span></div>
+          <div class="lane-body">
+            <div class="lstep">
+              <div class="lst">Add a New Lead on the Account</div>
+              <p>Open the Account (Buyer Name in Starbridge), scroll down-right, and add a New Lead.</p>
+              <div class="crops"><figure class="crop"><img src="sop-assets/image20.png" alt="New Lead menu"><figcaption class="cl">Leads › + New Lead</figcaption></figure></div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Fill the required fields</div>
+              <div class="fieldnote">
+                Existing Account (create one if it's not in CRM) · Topic = <b>“RFP Review:”</b> + project name · Source Campaign = <b>Starbridge</b> (or <b>Tenders &amp; RFP</b> if sourced elsewhere) · Responsible = <b>you</b> · Follow-up date = <b>3 business days out</b>.
+              </div>
+              <div class="shots"><figure class="shot tall"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — New Lead</span></div><img src="sop-assets/image21.png" alt="New lead form fields"></figure></div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Post the RFP details</div>
+              <p>Create a post with the RFP and any other pertinent information.</p>
+              <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Timeline post</span></div><img src="sop-assets/image22.png" alt="Create a post with the RFP"></figure></div>
+            </div>
+            <div class="lstep">
+              <div class="lst">Analyst reviews &amp; qualifies</div>
+              <p>The Lead appears on the B&amp;P Dashboard. The Analyst reviews within 3 business days and assigns themselves as <span class="hl">Responsible</span>. If it's a <span class="hl">GO</span> from the DSR, select <span class="hl">Qualify Lead</span>.</p>
+              <div class="shots">
+                <figure class="shot"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Lead Follow-up</span></div><img src="sop-assets/image23.png" alt="Assign responsible / follow up"></figure>
+                <figure class="shot"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Qualify Lead</span></div><img src="sop-assets/image24.png" alt="Qualify lead button"></figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="converge">
+        <div class="ct">Either path lands the same place: a live Opportunity in CRM, ready for <a href="Operational Workflow Chart.html#strategy">Strategy &amp; Analysis →</a></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ TRACK 2 ============ -->
+  <div class="track" data-tc="pc">
+    <div class="track-head">
+      <div class="track-badge">B</div>
+      <div>
+        <div class="tt">Contract Case Creation</div>
+        <div class="ts">Spinning up a contract review case for PC in Dynamics 365</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step" data-r="pc">
+        <div class="snum">1</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Create a Quick case</span><span class="rtag" data-r="pc">B&amp;P</span></div>
+          <p>Click the <span class="hl">“+”</span> sign in the top bar to open <span class="hl">Quick Create: Case</span>.</p>
+          <div class="crops"><figure class="crop"><img src="sop-assets/image5.png" alt="Plus sign to create quick case"><figcaption class="cl">“+” · Quick Create</figcaption></figure></div>
+        </div>
+      </div>
+      <div class="step" data-r="pc">
+        <div class="snum">2</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Fill the asterisked fields</span><span class="rtag" data-r="pc">B&amp;P</span></div>
+          <p>Complete every field marked with an asterisk — Account, Case Title, Group, Type, Assign to Others — and add a Description.</p>
+          <div class="shots"><figure class="shot tall"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Quick Create: Case</span></div><img src="sop-assets/image6.png" alt="Quick create case form"></figure></div>
+        </div>
+      </div>
+      <div class="step" data-r="pc">
+        <div class="snum">3</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Upload contract documents to Box</span><span class="rtag" data-r="pc">B&amp;P</span></div>
+          <p>Open the Box folder via <span class="hl">Opp. Folder (Web)</span>. File map: <span class="hl">Presales › Bid › Bid Documents</span>. Then share the link on the timeline.</p>
+          <div class="crops"><figure class="crop"><img src="sop-assets/image7.png" alt="Opp folder web button"><figcaption class="cl">Opp. Folder (Web)</figcaption></figure></div>
+          <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Timeline</span></div><img src="sop-assets/image8.png" alt="Share link on timeline"><figcaption class="cap">Share the Box link on the case timeline.</figcaption></figure></div>
+        </div>
+      </div>
+      <div class="step" data-r="pc">
+        <div class="snum">4</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Push the flyover to Prepare</span><span class="rtag" data-r="pc">B&amp;P</span></div>
+          <p>Advance the case to the <span class="hl">Prepare</span> stage. <span class="hl">PC won't see the case</span> until it has been pushed to this stage.</p>
+          <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Case Process</span></div><img src="sop-assets/image9.png" alt="Push flyover to prepare stage"></figure></div>
+        </div>
+      </div>
+      <div class="step" data-r="pc">
+        <div class="snum">5</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Add a Resolve By date</span><span class="rtag" data-r="pc">B&amp;P</span></div>
+          <p>Set the <span class="hl">Resolve By</span> date (and Follow Up By) on the case.</p>
+          <div class="shots"><figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Case dates</span></div><img src="sop-assets/image10.png" alt="Add resolve by date"></figure></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TRACK 3 ============ -->
+  <div class="track" data-tc="dq">
+    <div class="track-head">
+      <div class="track-badge">C</div>
+      <div>
+        <div class="tt">Disqualifying a Bid Case</div>
+        <div class="ts">When a case won't be pursued — record it cleanly without moving through the stages</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step" data-r="dsr">
+        <div class="snum">1</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Record the disqualification</span><span class="rtag" data-r="analyst">Analyst</span></div>
+          <ul>
+            <li>Identify the reasoning for disqualifying and communicate to knowing parties if already discussed.</li>
+            <li>Ensure <span class="hl">“Worked By”</span> is assigned to you.</li>
+            <li>Under the <span class="hl">Analysis</span> stage, set <span class="hl">Bid Disqualified = ‘YES’</span> and add a Reason Code.</li>
+            <li>Click <span class="hl">Resolve Stage</span> (Resolve = ‘YES’). <b>Do not</b> move it through the stages — just Resolve after recording the reason.</li>
+          </ul>
+          <div class="fieldnote">Place the reason under the <b>bid case</b> (it does not have to be added under the Opportunity). Cancel the case if no work was required from B&amp;P and an analysis didn't occur. If bid forms were completed, mark “Yes” in the Resolve case stage.</div>
+          <div class="shots">
+            <figure class="shot wide"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Bid Disqualified</span></div><img src="sop-assets/image3.png" alt="Bid disqualified yes"></figure>
+            <figure class="shot"><div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="t">Dynamics 365 — Resolve</span></div><img src="sop-assets/image4.png" alt="Resolve case"></figure>
+          </div>
+        </div>
+      </div>
+      <div class="step" data-r="dsr">
+        <div class="snum">2</div>
+        <div class="scard">
+          <div class="sh"><span class="stitle">Reason codes</span></div>
+          <p>Pick the code that best fits why the bid was disqualified.</p>
+          <div class="codes">
+            <span class="code">FAR<small>Federal Acquisition Regulation — incl. BABA, License, HUD</small></span>
+            <span class="code">Sub Only<small>Only part of the project; no proposal needed</small></span>
+            <span class="code">Short Lead Time<small>Insufficient time to submit</small></span>
+            <span class="code">Unapproved Vendor<small>Not qualified / products not spec'd</small></span>
+            <span class="code">Backlog<small>No resource capacity to pursue</small></span>
+            <span class="code">Duplicate<small>Duplicate of another opportunity</small></span>
+            <span class="code">Low Sales Probability<small>Didn't score high enough</small></span>
+            <span class="code">External Disengagement<small>Limited/no customer engagement</small></span>
+            <span class="code">Internal Disengagement<small>Key stakeholders didn't participate</small></span>
+            <span class="code">Disqualified Post-Kickoff<small>Bid not compliant</small></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="lb" id="lb"><button class="x" id="lbx" aria-label="Close">✕</button><img id="lbimg" alt=""></div>
+
+<div id="tweaks-root"></div>
+
+<script>
+// lightbox
+const lb=document.getElementById('lb'), lbimg=document.getElementById('lbimg');
+document.querySelectorAll('.shot img, .crop img').forEach(img=>{
+  img.addEventListener('click',e=>{ e.stopPropagation(); lbimg.src=img.src; lb.classList.add('on'); });
+});
+lb.addEventListener('click',()=>lb.classList.remove('on'));
+document.getElementById('lbx').addEventListener('click',()=>lb.classList.remove('on'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') lb.classList.remove('on'); });
+
+// Tweaks bridge (no canvas to redraw on this page)
+const TWK_FONTS={ soft:['"Poppins"','"Mulish"'], rounded:['"Nunito"','"Nunito"'], modern:['"Space Grotesk"','"Space Grotesk"'] };
+window.applyWorkflowTweaks=function(t){
+  const b=document.body, r=document.documentElement.style;
+  if(t.theme) b.dataset.theme=t.theme;
+  if(t.palette) b.dataset.palette=t.palette;
+  if(t.cards) b.dataset.cards=t.cards;
+  if(t.bg) b.dataset.bg=t.bg;
+  if(t.radius!=null) r.setProperty('--radius', t.radius+'px');
+  const f=TWK_FONTS[t.font]||TWK_FONTS.soft;
+  r.setProperty('--font-display', f[0]+',system-ui,sans-serif');
+  r.setProperty('--font-body', f[1]+',system-ui,sans-serif');
+  r.setProperty('--font-label', f[1]+',system-ui,sans-serif');
+};
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="workflow-tweaks.jsx"></script>
+</body>
+</html>

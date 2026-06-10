@@ -103,6 +103,8 @@ header{
   padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .14s ease;white-space:nowrap;
 }
 .btn:hover{color:var(--ink);border-color:color-mix(in oklab,var(--ink) 22%,var(--line));background:var(--panel-hi)}
+.btn-link{text-decoration:none;display:inline-flex;align-items:center;color:color-mix(in oklab,var(--sales) 38%,var(--ink));border-color:color-mix(in oklab,var(--sales) 34%,var(--line));background:color-mix(in oklab,var(--sales) 10%,var(--panel))}
+.btn-link:hover{color:color-mix(in oklab,var(--sales) 30%,var(--ink));border-color:color-mix(in oklab,var(--sales) 50%,var(--line));background:color-mix(in oklab,var(--sales) 16%,var(--panel))}
 .zoom{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .zoom button{font-family:var(--font-label);background:none;border:none;color:var(--ink-dim);width:34px;height:34px;font-size:16px;cursor:pointer;transition:all .12s}
 .zoom button:hover{color:var(--ink);background:var(--panel-hi)}
@@ -200,6 +202,11 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
 .substeps li::before{content:"";position:absolute;left:3px;top:13px;width:6px;height:6px;border-radius:2px;
   background:var(--c)}
 .note{margin-top:11px;font-size:12.5px;color:var(--ink-faint);line-height:1.4}
+.detail-link{display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-family:var(--font-label);font-size:12px;font-weight:700;
+  text-decoration:none;color:color-mix(in oklab,var(--c) 40%,var(--ink));
+  padding:6px 11px;border-radius:9px;background:color-mix(in oklab,var(--c) 16%,var(--panel));
+  border:1px solid color-mix(in oklab,var(--c) 36%,transparent);transition:all .14s ease}
+.detail-link:hover{background:color-mix(in oklab,var(--c) 26%,var(--panel));transform:translateX(2px)}
 
 /* decisions */
 .decision{justify-self:center;width:168px;height:168px;position:relative;display:grid;place-items:center;cursor:default;
@@ -244,6 +251,7 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
   </div>
 
   <div class="controls">
+    <a class="btn btn-link" href="Intake and Case Creation Playbook.html">Intake &amp; Case Creation ↳</a>
     <button class="btn" id="expandBtn">＋ Expand all</button>
     <button class="btn" id="fitBtn">Fit</button>
     <div class="zoom">
@@ -269,6 +277,7 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
           <div class="title">RFP Intake &amp; Opportunity Registration</div>
           <div class="chips"><span class="chip" data-k="bp">Bid &amp; Proposal</span></div>
           <div class="note">New RFP logged and registered as a tracked opportunity.</div>
+          <a class="detail-link" href="Intake and Case Creation Playbook.html">View case-creation playbook →</a>
         </div>
       </div>
 
@@ -496,9 +505,11 @@ function animateDraw(ms=360){
   const t0=performance.now();
   (function loop(t){ draw(); if(t-t0<ms) requestAnimationFrame(loop); })(t0);
 }
+document.querySelectorAll('.detail-link').forEach(a=>a.addEventListener('click',e=>e.stopPropagation()));
 document.querySelectorAll('.card').forEach(card=>{
   if(!card.querySelector('.substeps')) return;
   card.addEventListener('click',e=>{
+    if(e.target.closest('.detail-link')) return;
     card.classList.toggle('open');
     syncExpandBtn(); animateDraw();
   });
