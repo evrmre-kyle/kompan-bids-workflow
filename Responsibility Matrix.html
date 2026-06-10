@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="site-nav.js" defer></script>
 <style>
 :root{
   --font-display:"Poppins",system-ui,-apple-system,sans-serif;
@@ -41,7 +42,7 @@ body{font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antial
 body[data-bg="plain"]{background:var(--bg)}
 
 /* header */
-header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+header{position:sticky;top:var(--sn-h,54px);z-index:40;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
   padding:14px 30px;background:color-mix(in oklab,var(--bg2) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--font-label);font-size:13px;font-weight:600;
   color:var(--ink-dim);padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);transition:all .14s ease}
@@ -56,11 +57,17 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
   font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink))}
 .team .dot{width:9px;height:9px;border-radius:3px;background:var(--c)}
 .team[data-t="sales"]{--c:var(--sales)} .team[data-t="design"]{--c:var(--design)} .team[data-t="ops"]{--c:var(--decision)} .team[data-t="bp"]{--c:var(--bp)}
+.snav{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;text-decoration:none;
+  background:color-mix(in oklab,var(--c) 15%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 34%,transparent);
+  font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink));transition:transform .12s ease, background .14s ease}
+.snav:hover{transform:translateY(-1px);background:color-mix(in oklab,var(--c) 24%,var(--panel))}
+.snav .dot{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.snav[data-t="sales"]{--c:var(--sales)} .snav[data-t="design"]{--c:var(--design)} .snav[data-t="ops"]{--c:var(--decision)} .snav[data-t="bp"]{--c:var(--bp)}
 
 .wrap{max-width:1240px;margin:0 auto;padding:44px 30px 120px}
 
 /* section heads */
-.shead{margin:56px 0 22px}
+.shead{margin:56px 0 22px;scroll-margin-top:calc(var(--sn-h,54px) + 86px)}
 .shead:first-of-type{margin-top:8px}
 .shead .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
   color:color-mix(in oklab,var(--sales) 45%,var(--ink-faint));margin-bottom:9px}
@@ -144,6 +151,8 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
 .meta .m{flex:1 1 auto;background:var(--panel-hi);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
 .meta .m .ml{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
 .meta .m .mv{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:2px}
+.form-link{color:color-mix(in oklab,var(--decision) 40%,var(--ink));text-decoration:none;border-bottom:1.5px solid color-mix(in oklab,var(--decision) 45%,transparent);transition:border-color .14s ease}
+.form-link:hover{border-color:var(--decision)}
 .wf{list-style:none;counter-reset:w;display:flex;flex-direction:column;gap:8px}
 .wf li{position:relative;padding-left:28px;font-size:13px;color:var(--ink-dim);line-height:1.4}
 .wf li::before{counter-increment:w;content:counter(w);position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;
@@ -177,20 +186,19 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
 @media (max-width:680px){ .matrix{grid-template-columns:1fr} .rule{grid-template-columns:1fr} .tk-grid{grid-template-columns:1fr} .stages{grid-template-columns:1fr} .intro h2{font-size:28px} }
 </style>
 </head>
-<body data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+<body data-nav="matrix" data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
 
 <header>
-  <a class="back" href="index.html">← Operational Workflow</a>
   <div class="htitle">
     <span class="eyebrow">Bid &amp; Proposal · 2026</span>
     <h1>Responsibility Matrix</h1>
   </div>
   <div class="legend">
-    <span class="lbl">Teams</span>
-    <span class="team" data-t="sales"><span class="dot"></span>Sales</span>
-    <span class="team" data-t="design"><span class="dot"></span>Design &amp; Visualization</span>
-    <span class="team" data-t="ops"><span class="dot"></span>Sales Operations</span>
-    <span class="team" data-t="bp"><span class="dot"></span>Bid &amp; Proposal</span>
+    <span class="lbl">Sections</span>
+    <a class="snav" data-t="sales" href="#lifecycle"><span class="dot"></span>Lifecycle</a>
+    <a class="snav" data-t="bp" href="#who-does-what"><span class="dot"></span>Who Does What</a>
+    <a class="snav" data-t="ops" href="#engagement"><span class="dot"></span>Engagement Avenues</a>
+    <a class="snav" data-t="design" href="#takeaways"><span class="dot"></span>Takeaways</a>
   </div>
 </header>
 
@@ -203,7 +211,7 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
   </section>
 
   <!-- LIFECYCLE -->
-  <div class="shead">
+  <div class="shead" id="lifecycle">
     <div class="k">Lifecycle</div>
     <h2>Where B&amp;P plugs into the bid</h2>
     <p>The Bid &amp; Proposal team is involved across the entire lifecycle — from pre-bid groundwork through submission and the post-bid handoff.</p>
@@ -235,7 +243,7 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
   </div>
 
   <!-- MATRIX -->
-  <div class="shead">
+  <div class="shead" id="who-does-what">
     <div class="k">Who does what</div>
     <h2>Bid &amp; Proposal leads — responsibilities by team</h2>
     <p>Responsibilities split into the <b>commercial</b> work (customer strategy, design, pricing) and the <b>technical</b> work (proposal management and response), owned by the Bid &amp; Proposal team.</p>
@@ -376,7 +384,7 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
   </div>
 
   <!-- ENGAGEMENT AVENUES -->
-  <div class="shead">
+  <div class="shead" id="engagement">
     <div class="k">Scope of services</div>
     <h2>Three avenues for B&amp;P engagement</h2>
     <p>How — and when — to request the Bid &amp; Proposal team, depending on where you are in the lifecycle and who owns the bid.</p>
@@ -388,12 +396,12 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
         <div class="field"><div class="fl">Definition</div><p>A task-work request that occurs <b>before</b> an RFP has been released.</p></div>
         <div class="field"><div class="fl">Example</div><p>Preliminary paperwork to become an approved vendor — vendor registrations and pre-qualifications.</p></div>
         <div class="meta">
-          <div class="m"><div class="ml">Request via</div><div class="mv">Pre-Bid Task Request Form</div></div>
+          <div class="m"><div class="ml">Request via</div><div class="mv"><a class="form-link" href="https://forms.monday.com/forms/c6b79e8a4f854ece082d6b84439f8437?r=euc1" target="_blank" rel="noopener">Pre-Bid Task Request Form ↗</a></div></div>
           <div class="m"><div class="ml">Turnaround</div><div class="mv">~2 weeks</div></div>
         </div>
         <div class="field"><div class="fl">Workflow</div>
           <ol class="wf">
-            <li>Requestor fills out the request form correctly</li>
+            <li>Requestor fills out the <a class="form-link" href="https://forms.monday.com/forms/c6b79e8a4f854ece082d6b84439f8437?r=euc1" target="_blank" rel="noopener">request form</a> correctly</li>
             <li>Request lands in the B&amp;P queue (Monday.com)</li>
             <li>B&amp;P rep self-assigns — emails the requestor</li>
             <li>B&amp;P rep completes the work — emails the requestor</li>
@@ -455,7 +463,7 @@ header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:20px
   </div>
 
   <!-- TAKEAWAYS -->
-  <div class="shead">
+  <div class="shead" id="takeaways">
     <div class="k">Remember</div>
     <h2>Key takeaways</h2>
   </div>

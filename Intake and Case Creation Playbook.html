@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="site-nav.js" defer></script>
 <style>
 :root{
   --font-display:"Poppins",system-ui,-apple-system,sans-serif;
@@ -62,7 +63,7 @@ body[data-bg="plain"]{ background:var(--bg); }
 
 /* ---------- top bar ---------- */
 header{
-  position:sticky;top:0;z-index:40;
+  position:sticky;top:var(--sn-h,54px);z-index:40;
   display:flex;align-items:center;gap:20px;flex-wrap:wrap;
   padding:14px 30px;
   background:color-mix(in oklab,var(--bg2) 86%,transparent);
@@ -78,6 +79,12 @@ header{
 .htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
 .legend{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:auto}
 .legend .lbl{font-family:var(--font-label);font-size:10px;font-weight:600;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase;margin-right:2px}
+.snav{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;text-decoration:none;
+  background:color-mix(in oklab,var(--c) 15%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 34%,transparent);
+  font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink));transition:transform .12s ease, background .14s ease}
+.snav:hover{transform:translateY(-1px);background:color-mix(in oklab,var(--c) 24%,var(--panel))}
+.snav .dot{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.snav[data-r="coord"]{--c:var(--sales)} .snav[data-r="pc"]{--c:var(--design)} .snav[data-r="dsr"]{--c:var(--compliance)}
 .role{display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;border-radius:999px;
   background:color-mix(in oklab,var(--c) 15%,var(--panel));border:1px solid color-mix(in oklab,var(--c) 34%,transparent);
   font-size:12px;font-weight:600;color:color-mix(in oklab,var(--c) 34%,var(--ink))}
@@ -96,7 +103,7 @@ header{
   border:1px solid color-mix(in oklab,var(--sales) 30%,transparent);padding:9px 15px;border-radius:12px}
 
 /* track headers */
-.track{margin-top:30px}
+.track{margin-top:30px;scroll-margin-top:calc(var(--sn-h,54px) + 86px)}
 .track-head{display:flex;align-items:center;gap:16px;margin:54px 0 28px;padding-bottom:16px;border-bottom:2px solid var(--line)}
 .track-badge{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
   font-family:var(--font-display);font-size:20px;font-weight:700;color:#fff;
@@ -208,20 +215,18 @@ header{
 }
 </style>
 </head>
-<body data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+<body data-nav="intake" data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
 
 <header>
-  <a class="back" href="index.html">← Operational Workflow</a>
   <div class="htitle">
     <span class="eyebrow">Bid &amp; Proposal · SOP 2026</span>
     <h1>Intake &amp; Case Creation Playbook</h1>
   </div>
   <div class="legend">
-    <span class="lbl">Roles</span>
-    <span class="role" data-r="coord"><span class="dot"></span>Coordinator</span>
-    <span class="role" data-r="analyst"><span class="dot"></span>Analyst / B&amp;P</span>
-    <span class="role" data-r="pc"><span class="dot"></span>PC / PSC</span>
-    <span class="role" data-r="dsr"><span class="dot"></span>DSR</span>
+    <span class="lbl">Sections</span>
+    <a class="snav" data-r="coord" href="#finding-leads"><span class="dot"></span>Finding Leads</a>
+    <a class="snav" data-r="pc" href="#contract-cases"><span class="dot"></span>Contract Cases</a>
+    <a class="snav" data-r="dsr" href="#disqualifying"><span class="dot"></span>Disqualifying</a>
   </div>
 </header>
 
@@ -235,7 +240,7 @@ header{
   </section>
 
   <!-- ============ TRACK 1 ============ -->
-  <div class="track" data-tc="coord">
+  <div class="track" data-tc="coord" id="finding-leads">
     <div class="track-head">
       <div class="track-badge">A</div>
       <div>
@@ -367,7 +372,7 @@ header{
   </div>
 
   <!-- ============ TRACK 2 ============ -->
-  <div class="track" data-tc="pc">
+  <div class="track" data-tc="pc" id="contract-cases">
     <div class="track-head">
       <div class="track-badge">B</div>
       <div>
@@ -422,7 +427,7 @@ header{
   </div>
 
   <!-- ============ TRACK 3 ============ -->
-  <div class="track" data-tc="dq">
+  <div class="track" data-tc="dq" id="disqualifying">
     <div class="track-head">
       <div class="track-badge">C</div>
       <div>

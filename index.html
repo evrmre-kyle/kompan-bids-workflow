@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="site-nav.js" defer></script>
 <style>
 :root{
   --font-display:"Poppins",system-ui,-apple-system,sans-serif;
@@ -103,8 +104,6 @@ header{
   padding:8px 14px;border-radius:10px;cursor:pointer;transition:all .14s ease;white-space:nowrap;
 }
 .btn:hover{color:var(--ink);border-color:color-mix(in oklab,var(--ink) 22%,var(--line));background:var(--panel-hi)}
-.btn-link{text-decoration:none;display:inline-flex;align-items:center;color:color-mix(in oklab,var(--sales) 38%,var(--ink));border-color:color-mix(in oklab,var(--sales) 34%,var(--line));background:color-mix(in oklab,var(--sales) 10%,var(--panel))}
-.btn-link:hover{color:color-mix(in oklab,var(--sales) 30%,var(--ink));border-color:color-mix(in oklab,var(--sales) 50%,var(--line));background:color-mix(in oklab,var(--sales) 16%,var(--panel))}
 .zoom{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .zoom button{font-family:var(--font-label);background:none;border:none;color:var(--ink-dim);width:34px;height:34px;font-size:16px;cursor:pointer;transition:all .12s}
 .zoom button:hover{color:var(--ink);background:var(--panel-hi)}
@@ -209,15 +208,18 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
 .detail-link:hover{background:color-mix(in oklab,var(--c) 26%,var(--panel));transform:translateX(2px)}
 
 /* decisions */
-.decision{justify-self:center;width:168px;height:168px;position:relative;display:grid;place-items:center;cursor:default;
+.decision{justify-self:center;width:168px;height:168px;position:relative;display:grid;place-items:center;cursor:default;text-decoration:none;color:inherit;
   filter:drop-shadow(var(--diamond-shadow))}
+a.decision{cursor:pointer;transition:transform .15s ease}
+a.decision:hover{transform:scale(1.04)}
+a.decision .dsub{color:color-mix(in oklab,var(--decision) 45%,var(--ink-dim))}
 .decision .dia{position:absolute;inset:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:var(--decision)}
 .decision .dia::after{content:"";position:absolute;inset:3px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
   background:color-mix(in oklab,var(--decision) 14%,var(--panel))}
 .decision .dtext{position:relative;z-index:2;text-align:center;padding:0 14px}
 .decision .dq{font-family:var(--font-label);font-size:9.5px;font-weight:700;letter-spacing:.16em;color:color-mix(in oklab,var(--decision) 50%,var(--ink));text-transform:uppercase;margin-bottom:6px}
 .decision .dmain{font-family:var(--font-display);font-size:14.5px;font-weight:600;line-height:1.12;letter-spacing:-.01em;white-space:nowrap;color:var(--ink)}
-.decision .dsub{font-size:11px;color:var(--ink-dim);margin-top:5px;font-weight:500}
+.decision .dsub{font-size:10.5px;color:var(--ink-dim);margin:5px auto 0;font-weight:600;line-height:1.25;max-width:108px;text-wrap:balance}
 
 /* branch labels on wires */
 .wlabel{position:absolute;z-index:3;transform:translate(-50%,-50%);pointer-events:none;
@@ -233,7 +235,7 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
   transition:opacity .4s ease;box-shadow:var(--card-shadow)}
 </style>
 </head>
-<body data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+<body data-nav="chart" data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
 
 <template id="__bundler_thumbnail" data-bg-color="#f3f4f8">
   <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
@@ -265,8 +267,6 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
   </div>
 
   <div class="controls">
-    <a class="btn btn-link" href="Intake and Case Creation Playbook.html">Intake &amp; Case Creation ↳</a>
-    <a class="btn btn-link" href="Responsibility Matrix.html">Responsibility Matrix ↳</a>
     <button class="btn" id="expandBtn">＋ Expand all</button>
     <button class="btn" id="fitBtn">Fit</button>
     <div class="zoom">
@@ -311,14 +311,14 @@ body[data-cards="outline"] .card:hover{box-shadow:var(--card-shadow)}
         </div>
       </div>
 
-      <div class="node decision" id="goDec" style="grid-area:2/4">
+      <a class="node decision" id="goDec" style="grid-area:2/4" href="Go No-Go Scorecard.html" title="Open the Go / No-Go Scorecard">
         <div class="dia"></div>
         <div class="dtext">
           <div class="dq">Decision</div>
           <div class="dmain">GO / NO-GO?</div>
-          <div class="dsub">Pursue the bid?</div>
+          <div class="dsub">Open the scorecard →</div>
         </div>
-      </div>
+      </a>
 
       <div class="node term stop" id="nogo" style="grid-area:1/4"><span class="mk"></span>NO-GO · Archive &amp; close</div>
 
@@ -584,7 +584,7 @@ document.getElementById('fitBtn').onclick=()=>{
 };
 let panning=false,sx,sy,sl,st;
 viewport.addEventListener('mousedown',e=>{
-  if(e.target.closest('.card, .owner, button')) return;
+  if(e.target.closest('.card, .owner, button, a.decision')) return;
   panning=true; viewport.classList.add('grabbing');
   sx=e.clientX; sy=e.clientY; sl=viewport.scrollLeft; st=viewport.scrollTop;
 });
@@ -595,7 +595,7 @@ window.addEventListener('mousemove',e=>{
 window.addEventListener('mouseup',()=>{panning=false;viewport.classList.remove('grabbing');});
 
 /* head height + init */
-function setHeadH(){ document.querySelector('.viewport').style.setProperty('--head-h', document.querySelector('header').offsetHeight+'px'); }
+function setHeadH(){ const h=document.querySelector('header'); document.querySelector('.viewport').style.setProperty('--head-h', Math.ceil(h.getBoundingClientRect().bottom)+'px'); }
 window.addEventListener('resize',()=>{setHeadH();draw();});
 new ResizeObserver(()=>draw()).observe(stage);
 

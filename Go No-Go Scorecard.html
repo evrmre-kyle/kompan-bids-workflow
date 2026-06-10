@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go / No-Go Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="site-nav.js" defer></script>
+<style>
+:root{
+  --font-display:"Poppins",system-ui,-apple-system,sans-serif;
+  --font-body:"Mulish",system-ui,-apple-system,sans-serif;
+  --font-label:"Mulish",system-ui,-apple-system,sans-serif;
+  --radius:18px;
+  --bg:oklch(0.975 0.005 250); --bg2:#ffffff; --panel:#ffffff; --panel-hi:oklch(0.965 0.006 250);
+  --ink:oklch(0.33 0.025 264); --ink-dim:oklch(0.49 0.022 264); --ink-faint:oklch(0.63 0.018 264);
+  --line:oklch(0.905 0.01 255);
+  --card-shadow:0 16px 32px -22px oklch(0.45 0.06 264/0.40), 0 2px 6px -3px oklch(0.45 0.06 264/0.16);
+  --go:#1f9d5b; --nogo:#cd4733;
+}
+body[data-theme="dark"]{
+  --bg:oklch(0.18 0.022 264); --bg2:oklch(0.215 0.024 264); --panel:oklch(0.245 0.025 264); --panel-hi:oklch(0.30 0.028 264);
+  --ink:oklch(0.97 0.005 264); --ink-dim:oklch(0.74 0.018 264); --ink-faint:oklch(0.56 0.02 264); --line:oklch(0.36 0.025 264);
+  --card-shadow:0 16px 34px -20px oklch(0 0 0/0.78);
+}
+body[data-palette="pastel"]{ --sales:oklch(0.72 0.10 250); --bp:oklch(0.80 0.088 64); --design:oklch(0.78 0.088 158); --compliance:oklch(0.74 0.108 18); --decision:oklch(0.74 0.10 300); }
+body[data-palette="corporate"]{ --sales:oklch(0.56 0.10 250); --bp:oklch(0.66 0.10 72); --design:oklch(0.58 0.085 185); --compliance:oklch(0.53 0.12 20); --decision:oklch(0.56 0.09 300); }
+body[data-palette="sunset"]{ --sales:oklch(0.70 0.115 28); --bp:oklch(0.82 0.10 72); --design:oklch(0.74 0.10 352); --compliance:oklch(0.62 0.13 18); --decision:oklch(0.72 0.10 330); }
+body[data-palette="ocean"]{ --sales:oklch(0.64 0.11 238); --bp:oklch(0.73 0.085 205); --design:oklch(0.72 0.088 168); --compliance:oklch(0.62 0.10 272); --decision:oklch(0.66 0.10 290); }
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in oklab,var(--ink) 7%,transparent) 1px, transparent 0) 0 0/26px 26px,
+    radial-gradient(1100px 700px at 10% 2%, color-mix(in oklab,var(--design) 10%,transparent), transparent 60%),
+    radial-gradient(1000px 720px at 94% 30%, color-mix(in oklab,var(--compliance) 8%,transparent), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;}
+body[data-bg="plain"]{background:var(--bg)}
+
+header{position:sticky;top:var(--sn-h,54px);z-index:40;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:14px 30px;background:color-mix(in oklab,var(--bg2) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.htitle{display:flex;flex-direction:column;gap:2px;min-width:max-content}
+.htitle .eyebrow{font-family:var(--font-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+.hscore{margin-left:auto;display:flex;align-items:center;gap:10px}
+.hscore .hs{font-family:var(--font-display);font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;
+  background:var(--panel-hi);border:1px solid var(--line);color:var(--ink-dim)}
+.hscore .hs b{color:var(--ink)}
+
+.wrap{max-width:1240px;margin:0 auto;padding:40px 30px 140px}
+.intro{margin-bottom:30px}
+.intro .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklab,var(--design) 42%,var(--ink-faint));margin-bottom:10px}
+.intro h2{font-family:var(--font-display);font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px;text-wrap:balance}
+.intro p{font-size:15px;color:var(--ink-dim);max-width:72ch}
+.intro a{color:color-mix(in oklab,var(--sales) 40%,var(--ink));font-weight:600}
+
+/* general info card */
+.gen{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);
+  padding:20px 22px;margin-bottom:26px}
+.gen .gl{font-family:var(--font-label);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px}
+.gen .fields{display:grid;grid-template-columns:2fr 1fr 1.4fr 1fr;gap:14px}
+.fld label{display:block;font-family:var(--font-label);font-size:11px;font-weight:700;color:var(--ink-dim);margin-bottom:5px}
+.fld input{width:100%;font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--ink);
+  background:var(--panel-hi);border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:border-color .14s ease}
+.fld input:focus{outline:none;border-color:color-mix(in oklab,var(--sales) 55%,var(--line));background:var(--panel)}
+
+/* scorecard table */
+.tableCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden}
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:880px}
+thead th{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-dim);text-align:left;padding:13px 14px;background:var(--panel-hi);border-bottom:2px solid var(--line)}
+thead th.pt{text-align:center;width:19%}
+thead th.sc{text-align:center;width:84px}
+tbody td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px;line-height:1.42}
+tbody tr:last-child td{border-bottom:none}
+td.q{font-weight:700;color:var(--ink);font-size:13.5px;width:24%}
+td.q .qn{display:block;font-weight:500;font-size:11.5px;color:var(--ink-faint);margin-top:3px;line-height:1.4}
+td.opt{color:var(--ink-dim);cursor:pointer;position:relative;border-left:1px solid var(--line);transition:background .13s ease, color .13s ease}
+td.opt:hover{background:color-mix(in oklab,var(--sales) 8%,transparent)}
+td.opt .pts{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:6px;margin-bottom:5px;
+  font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--ink-faint);background:var(--panel-hi);border:1px solid var(--line)}
+td.opt.sel{background:color-mix(in oklab,var(--go) 13%,transparent);color:var(--ink)}
+td.opt.sel .pts{background:var(--go);border-color:var(--go);color:#fff}
+td.opt .dual{display:block}
+td.opt .dual + .dual{margin-top:4px}
+td.opt .dual b{font-weight:700;color:color-mix(in oklab,var(--ink) 75%,var(--ink-dim));font-size:11px}
+td.scell{text-align:center;border-left:1px solid var(--line);background:var(--panel-hi)}
+td.scell input{width:54px;text-align:center;font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--ink);
+  background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:7px 4px}
+td.scell input:focus{outline:none;border-color:color-mix(in oklab,var(--sales) 60%,var(--line))}
+tfoot td{padding:14px;background:var(--panel-hi);border-top:2px solid var(--line);font-family:var(--font-display)}
+tfoot .tl{font-size:15px;font-weight:700}
+tfoot .tv{text-align:center;font-size:20px;font-weight:700}
+
+/* comments */
+.comments{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:20px 22px}
+.comments label{display:block;font-family:var(--font-label);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:10px}
+.comments textarea{width:100%;min-height:84px;resize:vertical;font-family:var(--font-body);font-size:14px;color:var(--ink);
+  background:var(--panel-hi);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.comments textarea:focus{outline:none;border-color:color-mix(in oklab,var(--sales) 55%,var(--line));background:var(--panel)}
+
+/* verdict */
+.verdict{margin-top:26px;border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden;
+  border:1.5px solid var(--line);background:var(--panel);transition:border-color .25s ease}
+.verdict .vband{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:24px 28px;transition:background .25s ease}
+.vscore{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px}
+.vscore .num{font-family:var(--font-display);font-size:44px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.vscore .of{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ink-faint);text-transform:uppercase}
+.vbar{flex:1 1 260px;min-width:200px}
+.vbar .track{position:relative;height:14px;border-radius:999px;background:var(--panel-hi);border:1px solid var(--line);overflow:visible}
+.vbar .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;width:0%;transition:width .3s ease, background .25s ease}
+.vbar .thr{position:absolute;top:-5px;bottom:-5px;width:2.5px;border-radius:2px;background:var(--ink-dim)}
+.vbar .scale{display:flex;justify-content:space-between;font-family:var(--font-label);font-size:10px;font-weight:700;color:var(--ink-faint);margin-top:6px}
+.vlabel{flex:none;display:flex;flex-direction:column;gap:4px;align-items:flex-end;margin-left:auto}
+.vlabel .vtag{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:.01em;
+  padding:10px 26px;border-radius:14px;color:#fff;transition:background .25s ease}
+.vlabel .vsub{font-size:12px;color:var(--ink-dim);font-weight:600}
+.verdict.is-go{border-color:color-mix(in oklab,var(--go) 55%,transparent)}
+.verdict.is-go .vband{background:color-mix(in oklab,var(--go) 10%,var(--panel))}
+.verdict.is-go .vtag{background:var(--go)}
+.verdict.is-go .num{color:color-mix(in oklab,var(--go) 70%,var(--ink))}
+.verdict.is-go .fill{background:var(--go)}
+.verdict.is-nogo{border-color:color-mix(in oklab,var(--nogo) 55%,transparent)}
+.verdict.is-nogo .vband{background:color-mix(in oklab,var(--nogo) 9%,var(--panel))}
+.verdict.is-nogo .vtag{background:var(--nogo)}
+.verdict.is-nogo .num{color:color-mix(in oklab,var(--nogo) 70%,var(--ink))}
+.verdict.is-nogo .fill{background:var(--nogo)}
+.vfoot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 28px;border-top:1px solid var(--line);
+  font-family:var(--font-label);font-size:12px;font-weight:600;color:var(--ink-faint)}
+.vfoot .thrIn{display:inline-flex;align-items:center;gap:7px}
+.vfoot input{width:58px;text-align:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--ink);
+  background:var(--panel-hi);border:1px solid var(--line);border-radius:8px;padding:5px 4px}
+.vfoot input:focus{outline:none;border-color:color-mix(in oklab,var(--sales) 60%,var(--line))}
+.vfoot .reset{margin-left:auto;font-family:var(--font-label);font-size:12px;font-weight:700;color:var(--ink-dim);
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 14px;cursor:pointer;transition:all .14s ease}
+.vfoot .reset:hover{color:color-mix(in oklab,var(--nogo) 50%,var(--ink));border-color:color-mix(in oklab,var(--nogo) 40%,var(--line))}
+
+@media (max-width:760px){
+  .gen .fields{grid-template-columns:1fr 1fr}
+  .intro h2{font-size:26px}
+  .vlabel{align-items:flex-start;margin-left:0}
+}
+</style>
+</head>
+<body data-nav="gonogo" data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+
+<header>
+  <div class="htitle">
+    <span class="eyebrow">Bid &amp; Proposal · KNA-BP-2026-0002</span>
+    <h1>Go / No-Go Scorecard</h1>
+  </div>
+  <div class="hscore"><span class="hs">Score <b id="hsVal">0</b> / 100</span></div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <div class="k">Sales Probability Form · interactive</div>
+    <h2>Should we pursue this bid?</h2>
+    <p>This is the team's Sales Probability Form behind the <a href="index.html">GO / NO-GO decision</a> on the operational workflow. Fill in the project details, then score each question by clicking the cell that best describes the opportunity (or typing a score). The total updates live — the verdict appears at the bottom.</p>
+  </section>
+
+  <div class="gen">
+    <div class="gl">General</div>
+    <div class="fields">
+      <div class="fld"><label for="fProject">Project Name</label><input id="fProject" type="text" placeholder="e.g. Vaughan Sports Complex"></div>
+      <div class="fld"><label for="fDate">Date</label><input id="fDate" type="date"></div>
+      <div class="fld"><label for="fLocation">Location</label><input id="fLocation" type="text" placeholder="e.g. Vaughan, ON"></div>
+      <div class="fld"><label for="fBudget">Budget</label><input id="fBudget" type="text" inputmode="decimal" placeholder="e.g. $215,000"></div>
+    </div>
+  </div>
+
+  <div class="tableCard">
+    <div class="tscroll">
+      <table id="scoreTable">
+        <thead>
+          <tr><th>Question</th><th class="pt">0</th><th class="pt">5</th><th class="pt">10</th><th class="sc">Score</th></tr>
+        </thead>
+        <tbody>
+          <tr data-q="q1">
+            <td class="q">When did we find out about the opportunity and get into the customer's buying process?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>We got into their buying process at the time of validating a competitor's price</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>We got into their buying process when they started to look for several potential suppliers</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>We got into their buying process at the time of specification of the project</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 1"></td>
+          </tr>
+          <tr data-q="q2">
+            <td class="q">How strong are we on the required products/solution compared to our competitors?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>Competitors are strong on these products/solution</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>We are on par with competitors on these products/solution</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>We are strong on this kind of products/solutions relative to competitors, e.g. Corocord, Robinia</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 2"></td>
+          </tr>
+          <tr data-q="q3">
+            <td class="q">How is the required balance of core and non core?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>Non core heavy: 25-40%</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>Medium core / non core heavy (40-50%)</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>Core heavy (50-100%)</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 3"></td>
+          </tr>
+          <tr data-q="q4">
+            <td class="q">What is the value of the opportunity?<span class="qn">(packaged lots are dealt with as a combined total)</span></td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>$0-150k budget</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>$150-300k budget</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>$300k or larger budget</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 4"></td>
+          </tr>
+          <tr data-q="q5">
+            <td class="q">What is the required turn around time for the proposal?<span class="qn">(start time is the cross-functional kickoff meeting)</span></td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br><span class="dual"><b>DSR quote:</b> less than 5 working days</span><span class="dual"><b>Bid &amp; Proposal:</b> less than 10 working days</span></td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br><span class="dual"><b>DSR quote:</b> 5-8 working days</span><span class="dual"><b>Bid &amp; Proposal:</b> 10-15 working days</span></td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br><span class="dual"><b>DSR quote:</b> 9 or more working days</span><span class="dual"><b>Bid &amp; Proposal:</b> 16 working days or more</span></td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 5"></td>
+          </tr>
+          <tr data-q="q6">
+            <td class="q">How is our current relationship to the customer?<span class="qn">(which we can get info from and/or that will advocate for us)</span></td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>Poor relationship, e.g. we have not previously visited the customer or we have a bad reputation among significant stakeholders</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>Medium strong relationship, e.g. we have won projects within the last 1-3 years</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>Strong relationship, e.g. we have won a project within a year</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 6"></td>
+          </tr>
+          <tr data-q="q7">
+            <td class="q">What is the competitive scene expected to be?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br><span class="dual"><b>DSR quote:</b> 6 or more competitors</span><span class="dual"><b>Bid &amp; Proposal:</b> low bid / low margin situation</span></td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br><span class="dual"><b>DSR quote:</b> 3-6 competitors</span><span class="dual"><b>Bid &amp; Proposal:</b> mid value</span></td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br><span class="dual"><b>DSR quote:</b> 2 or less competitors</span><span class="dual"><b>Bid &amp; Proposal:</b> highest possible value for a fixed budget situation</span></td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 7"></td>
+          </tr>
+          <tr data-q="q8">
+            <td class="q">Do we have at least 2 reference sites nearby?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>More than one hour drive away</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>Between 30 minutes and one hour drive away</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>Less than 30 minutes drive away</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 8"></td>
+          </tr>
+          <tr data-q="q9">
+            <td class="q">What is the decision making process of the customer?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>It will be judged only on the submission</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>It will be judged only on the submission but we have strong relationship to one or more stake holders or members on the committee</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>We are able to present</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 9"></td>
+          </tr>
+          <tr data-q="q10">
+            <td class="q">How soon will the order be placed?</td>
+            <td class="opt" data-v="0"><span class="pts">0</span><br>Funding is not secured yet</td>
+            <td class="opt" data-v="5"><span class="pts">5</span><br>Ordered within 1 to 3 months</td>
+            <td class="opt" data-v="10"><span class="pts">10</span><br>Ordered in less than a month</td>
+            <td class="scell"><input type="number" min="0" max="10" step="1" aria-label="Score question 10"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td class="tl" colspan="4">Total score</td><td class="tv" id="totalCell">0</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="comments">
+    <label for="fComments">Other relevant comments</label>
+    <textarea id="fComments" placeholder="Anything noteworthy about this opportunity…"></textarea>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <div class="vband">
+      <div class="vscore"><span class="num" id="vNum">0</span><span class="of">of 100</span></div>
+      <div class="vbar">
+        <div class="track"><div class="fill" id="vFill"></div><div class="thr" id="vThr"></div></div>
+        <div class="scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      </div>
+      <div class="vlabel">
+        <span class="vtag" id="vTag">—</span>
+        <span class="vsub" id="vSub">Score the questions above</span>
+      </div>
+    </div>
+    <div class="vfoot">
+      <span class="thrIn">GO threshold ≥ <input id="fThreshold" type="number" min="0" max="100" step="5" value="50"></span>
+      <span id="vCount">0 of 10 questions scored</span>
+      <button class="reset" id="resetBtn">Reset form</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="tweaks-root"></div>
+
+<script>
+(function(){
+  const LS_KEY='gonogo-scorecard-v1';
+  const rows=[...document.querySelectorAll('tbody tr[data-q]')];
+  const fields={project:fProject,date:fDate,location:fLocation,budget:fBudget,comments:fComments,threshold:fThreshold};
+
+  function state(){
+    const s={fields:{},scores:{}};
+    s.fields={project:fProject.value,date:fDate.value,location:fLocation.value,budget:fBudget.value,comments:fComments.value,threshold:fThreshold.value};
+    rows.forEach(r=>{ s.scores[r.dataset.q]=r.querySelector('input').value; });
+    return s;
+  }
+  function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state())); }catch(e){} }
+  function load(){
+    let s=null; try{ s=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+    if(!s) return;
+    if(s.fields){
+      fProject.value=s.fields.project||''; fDate.value=s.fields.date||''; fLocation.value=s.fields.location||'';
+      fBudget.value=s.fields.budget||''; fComments.value=s.fields.comments||'';
+      if(s.fields.threshold) fThreshold.value=s.fields.threshold;
+    }
+    if(s.scores) rows.forEach(r=>{ const v=s.scores[r.dataset.q]; if(v!=='' && v!=null) r.querySelector('input').value=v; });
+  }
+
+  function syncRow(r){
+    const v=r.querySelector('input').value;
+    r.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel', v!=='' && Number(o.dataset.v)===Number(v)));
+  }
+  function recalc(){
+    let total=0, n=0;
+    rows.forEach(r=>{
+      syncRow(r);
+      const raw=r.querySelector('input').value;
+      if(raw!==''){ n++; total+=Math.min(10,Math.max(0,Number(raw)||0)); }
+    });
+    const thr=Math.min(100,Math.max(0,Number(fThreshold.value)||0));
+    totalCell.textContent=total;
+    hsVal.textContent=total;
+    vNum.textContent=total;
+    vFill.style.width=Math.min(100,total)+'%';
+    vThr.style.left='calc('+thr+'% - 1px)';
+    vCount.textContent=n+' of '+rows.length+' questions scored';
+    const v=document.getElementById('verdict');
+    if(n===0){
+      v.classList.remove('is-go','is-nogo');
+      vTag.textContent='—'; vTag.style.background='var(--ink-faint)';
+      vSub.textContent='Score the questions above';
+    } else {
+      vTag.style.background='';
+      const go=total>=thr;
+      v.classList.toggle('is-go',go); v.classList.toggle('is-nogo',!go);
+      vTag.textContent=go?'THIS PROJECT IS A GO':'THIS PROJECT IS A NO-GO';
+      vSub.textContent=go?('Meets the GO threshold of '+thr):('Below the GO threshold of '+thr);
+    }
+    save();
+  }
+
+  // option cell click → set score
+  document.querySelectorAll('td.opt').forEach(o=>{
+    o.addEventListener('click',()=>{
+      const r=o.closest('tr'); const inp=r.querySelector('input');
+      inp.value = (inp.value!=='' && Number(inp.value)===Number(o.dataset.v)) ? '' : o.dataset.v; // click again to clear
+      recalc();
+    });
+  });
+  rows.forEach(r=>r.querySelector('input').addEventListener('input',recalc));
+  [fProject,fDate,fLocation,fBudget,fComments,fThreshold].forEach(el=>el.addEventListener('input',recalc));
+
+  // budget light formatting on blur
+  fBudget.addEventListener('blur',()=>{
+    const raw=fBudget.value.replace(/[^0-9.]/g,'');
+    if(raw){ const num=Number(raw); if(!isNaN(num)) fBudget.value='$'+num.toLocaleString(undefined,{maximumFractionDigits:2}); }
+  });
+
+  resetBtn.addEventListener('click',()=>{
+    if(!confirm('Clear all fields and scores?')) return;
+    [fProject,fDate,fLocation,fBudget,fComments].forEach(el=>el.value='');
+    fThreshold.value=50;
+    rows.forEach(r=>r.querySelector('input').value='');
+    recalc();
+  });
+
+  load();
+  recalc();
+})();
+
+const TWK_FONTS={ soft:['"Poppins"','"Mulish"'], rounded:['"Nunito"','"Nunito"'], modern:['"Space Grotesk"','"Space Grotesk"'] };
+window.applyWorkflowTweaks=function(t){
+  const b=document.body, r=document.documentElement.style;
+  if(t.theme) b.dataset.theme=t.theme;
+  if(t.palette) b.dataset.palette=t.palette;
+  if(t.cards) b.dataset.cards=t.cards;
+  if(t.bg) b.dataset.bg=t.bg;
+  if(t.radius!=null) r.setProperty('--radius', t.radius+'px');
+  const f=TWK_FONTS[t.font]||TWK_FONTS.soft;
+  r.setProperty('--font-display', f[0]+',system-ui,sans-serif');
+  r.setProperty('--font-body', f[1]+',system-ui,sans-serif');
+  r.setProperty('--font-label', f[1]+',system-ui,sans-serif');
+};
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="workflow-tweaks.jsx"></script>
+</body>
+</html>
