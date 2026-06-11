@@ -253,9 +253,8 @@ a.decision .dsub{color:color-mix(in oklab,var(--decision) 45%,var(--ink-dim))}
 
 <header>
   <div class="brand">
-    <span class="eyebrow">Operations · Bid &amp; Proposal</span>
+    <span class="eyebrow">Bid &amp; Proposal</span>
     <h1>RFP &amp; Proposal Workflow</h1>
-    <span class="meta">Intake → Strategy → Scoping → Design → Compliance</span>
   </div>
 
   <div class="legend" id="legend">
@@ -395,7 +394,7 @@ a.decision .dsub{color:color-mix(in oklab,var(--decision) 45%,var(--ink-dim))}
   </div>
 </div>
 
-<div class="hint" id="hint">Drag to pan · click a card to expand · click a legend owner to filter</div>
+<div class="hint" id="hint">Drag to pan · click a card to expand · scroll to zoom · click a legend owner to filter</div>
 
 <div id="tweaks-root"></div>
 
@@ -582,6 +581,20 @@ document.getElementById('fitBtn').onclick=()=>{
   const w=stage.scrollWidth, avail=viewport.clientWidth-40;
   setZoom(Math.max(0.5, Math.min(1, avail/w)));
 };
+/* ---- mouse-wheel zoom ---- */
+viewport.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const rect=viewport.getBoundingClientRect();
+  const px=e.clientX-rect.left, py=e.clientY-rect.top;            // pointer in viewport
+  const cx=(viewport.scrollLeft+px)/zoom, cy=(viewport.scrollTop+py)/zoom; // content coords
+  const factor = e.deltaY<0 ? 1.1 : 1/1.1;
+  const nz=Math.min(1.6,Math.max(0.3,zoom*factor));
+  if(nz===zoom) return;
+  zoom=nz; applyZoom();
+  viewport.scrollLeft=cx*zoom-px;
+  viewport.scrollTop=cy*zoom-py;
+},{passive:false});
+
 let panning=false,sx,sy,sl,st;
 viewport.addEventListener('mousedown',e=>{
   if(e.target.closest('.card, .owner, button, a.decision')) return;

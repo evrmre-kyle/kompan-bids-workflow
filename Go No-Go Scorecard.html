@@ -47,26 +47,24 @@ header{position:sticky;top:var(--sn-h,54px);z-index:40;display:flex;align-items:
 .htitle .eyebrow{font-family:var(--font-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
 .htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
 .hscore{margin-left:auto;display:flex;align-items:center;gap:10px}
-.hscore .hs{font-family:var(--font-display);font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;
-  background:var(--panel-hi);border:1px solid var(--line);color:var(--ink-dim)}
-.hscore .hs b{color:var(--ink)}
+.hscore .hs{display:inline-flex;align-items:center;font-family:var(--font-display);font-size:14px;font-weight:700;padding:7px 16px;border-radius:999px;
+  background:var(--panel-hi);border:1px solid var(--line);color:var(--ink-dim);
+  transition:background .25s ease,border-color .25s ease,color .25s ease}
+.hscore .hs b{color:var(--ink);margin:0 4px;transition:color .25s ease}
+.hsGo{display:inline-block;max-width:0;overflow:hidden;opacity:0;margin-left:0;letter-spacing:.08em;
+  transition:max-width .3s ease,opacity .25s ease,margin-left .3s ease}
+.hs.go{background:var(--go);border-color:var(--go);color:#fff}
+.hs.go b{color:#fff}
+.hs.go .hsGo{max-width:64px;opacity:1;margin-left:9px}
+@keyframes hsPop{0%{transform:scale(1)}45%{transform:scale(1.16)}100%{transform:scale(1)}}
+.hs.pop{animation:hsPop .45s cubic-bezier(.34,1.56,.64,1)}
 
 .wrap{max-width:1240px;margin:0 auto;padding:40px 30px 140px}
-.intro{margin-bottom:30px}
+.intro{margin-bottom:30px;text-align:center}
+.intro p{font-size:15px;color:var(--ink-dim);max-width:72ch;margin:0 auto}
 .intro .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklab,var(--design) 42%,var(--ink-faint));margin-bottom:10px}
 .intro h2{font-family:var(--font-display);font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px;text-wrap:balance}
-.intro p{font-size:15px;color:var(--ink-dim);max-width:72ch}
 .intro a{color:color-mix(in oklab,var(--sales) 40%,var(--ink));font-weight:600}
-
-/* general info card */
-.gen{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);
-  padding:20px 22px;margin-bottom:26px}
-.gen .gl{font-family:var(--font-label);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px}
-.gen .fields{display:grid;grid-template-columns:2fr 1fr 1.4fr 1fr;gap:14px}
-.fld label{display:block;font-family:var(--font-label);font-size:11px;font-weight:700;color:var(--ink-dim);margin-bottom:5px}
-.fld input{width:100%;font-family:var(--font-body);font-size:14px;font-weight:600;color:var(--ink);
-  background:var(--panel-hi);border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:border-color .14s ease}
-.fld input:focus{outline:none;border-color:color-mix(in oklab,var(--sales) 55%,var(--line));background:var(--panel)}
 
 /* scorecard table */
 .tableCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden}
@@ -76,6 +74,7 @@ thead th{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spa
   color:var(--ink-dim);text-align:left;padding:13px 14px;background:var(--panel-hi);border-bottom:2px solid var(--line)}
 thead th.pt{text-align:center;width:19%}
 thead th.sc{text-align:center;width:84px}
+tbody tr:nth-child(even){background:color-mix(in oklab,var(--ink) 3%,var(--panel))}
 tbody td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px;line-height:1.42}
 tbody tr:last-child td{border-bottom:none}
 td.q{font-weight:700;color:var(--ink);font-size:13.5px;width:24%}
@@ -151,10 +150,10 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
 
 <header>
   <div class="htitle">
-    <span class="eyebrow">Bid &amp; Proposal · KNA-BP-2026-0002</span>
+    <span class="eyebrow">Bid &amp; Proposal</span>
     <h1>Go / No-Go Scorecard</h1>
   </div>
-  <div class="hscore"><span class="hs">Score <b id="hsVal">0</b> / 100</span></div>
+  <div class="hscore"><span class="hs" id="hsPill">Score <b id="hsVal">0</b> / 100<span class="hsGo">✓ GO</span></span></div>
 </header>
 
 <div class="wrap">
@@ -162,18 +161,8 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
   <section class="intro">
     <div class="k">Sales Probability Form · interactive</div>
     <h2>Should we pursue this bid?</h2>
-    <p>This is the team's Sales Probability Form behind the <a href="index.html">GO / NO-GO decision</a> on the operational workflow. Fill in the project details, then score each question by clicking the cell that best describes the opportunity (or typing a score). The total updates live — the verdict appears at the bottom.</p>
+    <p>This is the team's Sales Probability Form behind the <a href="index.html">GO / NO-GO decision</a> on the operational workflow. Score each question by clicking the cell that best describes the opportunity (or typing a score). The total updates live — the verdict appears at the bottom.</p>
   </section>
-
-  <div class="gen">
-    <div class="gl">General</div>
-    <div class="fields">
-      <div class="fld"><label for="fProject">Project Name</label><input id="fProject" type="text" placeholder="e.g. Vaughan Sports Complex"></div>
-      <div class="fld"><label for="fDate">Date</label><input id="fDate" type="date"></div>
-      <div class="fld"><label for="fLocation">Location</label><input id="fLocation" type="text" placeholder="e.g. Vaughan, ON"></div>
-      <div class="fld"><label for="fBudget">Budget</label><input id="fBudget" type="text" inputmode="decimal" placeholder="e.g. $215,000"></div>
-    </div>
-  </div>
 
   <div class="tableCard">
     <div class="tscroll">
@@ -292,11 +281,10 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
 (function(){
   const LS_KEY='gonogo-scorecard-v1';
   const rows=[...document.querySelectorAll('tbody tr[data-q]')];
-  const fields={project:fProject,date:fDate,location:fLocation,budget:fBudget,comments:fComments,threshold:fThreshold};
 
   function state(){
     const s={fields:{},scores:{}};
-    s.fields={project:fProject.value,date:fDate.value,location:fLocation.value,budget:fBudget.value,comments:fComments.value,threshold:fThreshold.value};
+    s.fields={comments:fComments.value,threshold:fThreshold.value};
     rows.forEach(r=>{ s.scores[r.dataset.q]=r.querySelector('input').value; });
     return s;
   }
@@ -305,8 +293,7 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
     let s=null; try{ s=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
     if(!s) return;
     if(s.fields){
-      fProject.value=s.fields.project||''; fDate.value=s.fields.date||''; fLocation.value=s.fields.location||'';
-      fBudget.value=s.fields.budget||''; fComments.value=s.fields.comments||'';
+      fComments.value=s.fields.comments||'';
       if(s.fields.threshold) fThreshold.value=s.fields.threshold;
     }
     if(s.scores) rows.forEach(r=>{ const v=s.scores[r.dataset.q]; if(v!=='' && v!=null) r.querySelector('input').value=v; });
@@ -326,6 +313,11 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
     const thr=Math.min(100,Math.max(0,Number(fThreshold.value)||0));
     totalCell.textContent=total;
     hsVal.textContent=total;
+    const pill=document.getElementById('hsPill');
+    const wasGo=pill.classList.contains('go');
+    const isGo=n>0 && total>=thr;
+    pill.classList.toggle('go', isGo);
+    if(isGo && !wasGo){ pill.classList.remove('pop'); void pill.offsetWidth; pill.classList.add('pop'); }
     vNum.textContent=total;
     vFill.style.width=Math.min(100,total)+'%';
     vThr.style.left='calc('+thr+'% - 1px)';
@@ -354,17 +346,11 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
     });
   });
   rows.forEach(r=>r.querySelector('input').addEventListener('input',recalc));
-  [fProject,fDate,fLocation,fBudget,fComments,fThreshold].forEach(el=>el.addEventListener('input',recalc));
-
-  // budget light formatting on blur
-  fBudget.addEventListener('blur',()=>{
-    const raw=fBudget.value.replace(/[^0-9.]/g,'');
-    if(raw){ const num=Number(raw); if(!isNaN(num)) fBudget.value='$'+num.toLocaleString(undefined,{maximumFractionDigits:2}); }
-  });
+  [fComments,fThreshold].forEach(el=>el.addEventListener('input',recalc));
 
   resetBtn.addEventListener('click',()=>{
     if(!confirm('Clear all fields and scores?')) return;
-    [fProject,fDate,fLocation,fBudget,fComments].forEach(el=>el.value='');
+    fComments.value='';
     fThreshold.value=50;
     rows.forEach(r=>r.querySelector('input').value='');
     recalc();
