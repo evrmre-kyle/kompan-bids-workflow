@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RFP Workbook Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Mulish:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="site-nav.js" defer></script>
+<style>
+:root{
+  --font-display:"Poppins",system-ui,-apple-system,sans-serif;
+  --font-body:"Mulish",system-ui,-apple-system,sans-serif;
+  --font-label:"Mulish",system-ui,-apple-system,sans-serif;
+  --radius:18px;
+  --bg:oklch(0.975 0.005 250); --bg2:#ffffff; --panel:#ffffff; --panel-hi:oklch(0.965 0.006 250);
+  --ink:oklch(0.33 0.025 264); --ink-dim:oklch(0.49 0.022 264); --ink-faint:oklch(0.63 0.018 264);
+  --line:oklch(0.905 0.01 255);
+  --card-shadow:0 16px 32px -22px oklch(0.45 0.06 264/0.40), 0 2px 6px -3px oklch(0.45 0.06 264/0.16);
+  --go:#1f9d5b; --nogo:#cd4733;
+}
+body[data-theme="dark"]{
+  --bg:oklch(0.18 0.022 264); --bg2:oklch(0.215 0.024 264); --panel:oklch(0.245 0.025 264); --panel-hi:oklch(0.30 0.028 264);
+  --ink:oklch(0.97 0.005 264); --ink-dim:oklch(0.74 0.018 264); --ink-faint:oklch(0.56 0.02 264); --line:oklch(0.36 0.025 264);
+  --card-shadow:0 16px 34px -20px oklch(0 0 0/0.78);
+}
+body[data-palette="pastel"]{ --sales:oklch(0.72 0.10 250); --bp:oklch(0.80 0.088 64); --design:oklch(0.78 0.088 158); --compliance:oklch(0.74 0.108 18); --decision:oklch(0.74 0.10 300); }
+body[data-palette="corporate"]{ --sales:oklch(0.56 0.10 250); --bp:oklch(0.66 0.10 72); --design:oklch(0.58 0.085 185); --compliance:oklch(0.53 0.12 20); --decision:oklch(0.56 0.09 300); }
+body[data-palette="sunset"]{ --sales:oklch(0.70 0.115 28); --bp:oklch(0.82 0.10 72); --design:oklch(0.74 0.10 352); --compliance:oklch(0.62 0.13 18); --decision:oklch(0.72 0.10 330); }
+body[data-palette="ocean"]{ --sales:oklch(0.64 0.11 238); --bp:oklch(0.73 0.085 205); --design:oklch(0.72 0.088 168); --compliance:oklch(0.62 0.10 272); --decision:oklch(0.66 0.10 290); }
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in oklab,var(--ink) 7%,transparent) 1px, transparent 0) 0 0/26px 26px,
+    radial-gradient(1100px 700px at 12% 2%, color-mix(in oklab,var(--bp) 10%,transparent), transparent 60%),
+    radial-gradient(1000px 720px at 92% 30%, color-mix(in oklab,var(--sales) 9%,transparent), transparent 60%),
+    var(--bg);
+  background-attachment:fixed;}
+body[data-bg="plain"]{background:var(--bg)}
+
+header{position:sticky;top:var(--sn-h,54px);z-index:40;display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding:14px 30px;background:color-mix(in oklab,var(--bg2) 86%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.htitle{display:flex;flex-direction:column;gap:2px;min-width:max-content}
+.htitle .eyebrow{font-family:var(--font-label);font-size:10.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint)}
+.htitle h1{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-.01em}
+
+.wrap{max-width:880px;margin:0 auto;padding:40px 30px 140px}
+.intro{margin-bottom:30px;text-align:center}
+.intro .k{font-family:var(--font-label);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:color-mix(in oklab,var(--bp) 48%,var(--ink-faint));margin-bottom:10px}
+.intro h2{font-family:var(--font-display);font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px;text-wrap:balance}
+.intro p{font-size:15px;color:var(--ink-dim);max-width:64ch;margin:0 auto}
+
+/* upload */
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;
+  border:2px dashed color-mix(in oklab,var(--bp) 55%,var(--line));border-radius:var(--radius);padding:34px 20px;
+  background:color-mix(in oklab,var(--bp) 6%,var(--panel));cursor:pointer;transition:all .15s ease;box-shadow:var(--card-shadow)}
+.drop:hover,.drop.over{background:color-mix(in oklab,var(--bp) 12%,var(--panel));border-color:color-mix(in oklab,var(--bp) 80%,var(--line))}
+.drop.busy{pointer-events:none;opacity:.55}
+.drop .di{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;color:#fff;
+  background:linear-gradient(135deg,color-mix(in oklab,var(--bp) 90%,#fff),var(--bp))}
+.drop .dt{font-family:var(--font-display);font-size:16px;font-weight:600}
+.drop .dt span{color:color-mix(in oklab,var(--bp) 45%,var(--ink));text-decoration:underline}
+.drop .dh{font-size:12.5px;color:var(--ink-faint)}
+.drop input{display:none}
+
+/* progress */
+.prog{display:none;margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--card-shadow);padding:14px 18px}
+.prog.show{display:block}
+.prog .ptop{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.prog .pl{font-family:var(--font-display);font-size:13.5px;font-weight:600}
+.prog .pp{font-family:var(--font-label);font-size:12px;font-weight:700;color:var(--ink-faint)}
+.prog .bar{height:10px;border-radius:999px;background:var(--panel-hi);border:1px solid var(--line);overflow:hidden}
+.prog .fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--sales),var(--bp));transition:width .4s ease}
+
+/* readout */
+.feed{display:none;margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden}
+.feed.show{display:block}
+.feed .fhead{display:flex;align-items:center;gap:9px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.feed .fdot{width:9px;height:9px;border-radius:50%;background:var(--bp);animation:pulse 1.6s ease infinite}
+.feed.idle .fdot{animation:none;background:var(--go)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.feed .ft{font-family:var(--font-display);font-size:13.5px;font-weight:600}
+.feed .fbody{max-height:380px;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+.msg{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5}
+.msg .who{flex:none;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px}
+.msg.claude .who{background:linear-gradient(135deg,#d97757,#c4633f);color:#fff}
+.msg.sys .who{background:var(--panel-hi);border:1px solid var(--line);color:var(--ink-faint)}
+.msg.warn .who{background:color-mix(in oklab,var(--nogo) 16%,var(--panel));color:color-mix(in oklab,var(--nogo) 55%,var(--ink))}
+.msg .txt{color:var(--ink-dim);padding-top:3px}
+.msg.claude .txt{color:var(--ink)}
+.msg .txt .cursor{display:inline-block;width:8px;height:14px;background:color-mix(in oklab,var(--ink) 60%,transparent);
+  vertical-align:-2px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* result */
+.result{display:none;margin-top:18px;border-radius:var(--radius);overflow:hidden;border:1.5px solid color-mix(in oklab,var(--go) 55%,transparent);
+  background:color-mix(in oklab,var(--go) 8%,var(--panel));box-shadow:var(--card-shadow)}
+.result.show{display:block;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.result .rband{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:22px 24px}
+.result .rcheck{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--go);color:#fff;font-size:22px;font-weight:700}
+.result .rinfo .rt{font-family:var(--font-display);font-size:17px;font-weight:600}
+.result .rinfo .rs{font-size:13px;color:var(--ink-dim);margin-top:2px}
+.dlbtn{margin-left:auto;display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:15px;font-weight:700;
+  color:#fff;background:var(--go);border:none;border-radius:13px;padding:14px 26px;cursor:pointer;text-decoration:none;
+  box-shadow:0 10px 24px -10px color-mix(in oklab,var(--go) 70%,transparent);transition:transform .14s ease, box-shadow .14s ease}
+.dlbtn:hover{transform:translateY(-2px);box-shadow:0 16px 30px -10px color-mix(in oklab,var(--go) 80%,transparent)}
+.result .rsum{padding:16px 24px 20px;border-top:1px solid color-mix(in oklab,var(--go) 25%,var(--line));
+  font-size:13.5px;color:var(--ink-dim);white-space:pre-wrap;line-height:1.6}
+.result .rsum b{color:var(--ink)}
+.again{display:none;margin:16px auto 0;font-family:var(--font-label);font-size:12.5px;font-weight:700;color:var(--ink-dim);
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 18px;cursor:pointer;transition:all .14s ease}
+.again.show{display:block}
+.again:hover{color:var(--ink)}
+
+.errbox{display:none;margin-top:18px;padding:16px 20px;border-radius:14px;font-size:13.5px;font-weight:600;
+  background:color-mix(in oklab,var(--nogo) 9%,var(--panel));border:1px solid color-mix(in oklab,var(--nogo) 40%,transparent);
+  color:color-mix(in oklab,var(--nogo) 55%,var(--ink))}
+.errbox.show{display:block}
+
+@media (max-width:680px){
+  .intro h2{font-size:26px}
+  .dlbtn{margin-left:0;width:100%;justify-content:center}
+}
+</style>
+</head>
+<body data-nav="workbook" data-theme="bright" data-palette="pastel" data-font="soft" data-cards="tinted" data-bg="dots">
+
+<header>
+  <div class="htitle">
+    <span class="eyebrow">Bid &amp; Proposal</span>
+    <h1>RFP Workbook Creator</h1>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="intro">
+    <div class="k">AI · RFP Analysis Workbook</div>
+    <h2>Upload an RFP, get the workbook</h2>
+    <p>Claude reads the full RFP and populates Kompan's standard 7-tab RFP Analysis Workbook — summary, design details, quoting, compliance matrix, evaluation criteria, proposal format, and win strategies — inside the real Excel template.</p>
+  </section>
+
+  <label class="drop" id="drop">
+    <span class="di">↑</span>
+    <span class="dt">Drop an RFP here or <span>browse</span></span>
+    <span class="dh">PDF, DOCX or TXT · a thorough read takes 5–10 minutes — a chime plays when it's ready, even from another tab</span>
+    <input id="rfpFile" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+  </label>
+
+  <div class="prog" id="prog">
+    <div class="ptop"><span class="pl" id="progLabel">Starting…</span><span class="pp" id="progPct">0%</span></div>
+    <div class="bar"><div class="fill" id="progFill"></div></div>
+  </div>
+
+  <div class="feed" id="feed">
+    <div class="fhead"><span class="fdot"></span><span class="ft">Claude is working</span></div>
+    <div class="fbody" id="fbody"></div>
+  </div>
+
+  <div class="errbox" id="errbox"></div>
+
+  <div class="result" id="result">
+    <div class="rband">
+      <span class="rcheck">✓</span>
+      <span class="rinfo">
+        <span class="rt" id="resTitle">Workbook ready</span><br>
+        <span class="rs" id="resSub"></span>
+      </span>
+      <a class="dlbtn" id="dlbtn" href="#" download>⬇&ensp;Download RFP Workbook</a>
+    </div>
+    <div class="rsum" id="resSum"></div>
+  </div>
+
+  <button class="again" id="again">Analyze another RFP</button>
+
+</div>
+
+<div id="tweaks-root"></div>
+
+<script src="rfp-workbook-engine.js"></script>
+<script>
+(function(){
+  const EMBEDDED=(()=>{ try{ return window.self!==window.top; }catch(e){ return true; } })();
+  const drop=document.getElementById('drop'), fileIn=document.getElementById('rfpFile');
+  const prog=document.getElementById('prog'), progFill=document.getElementById('progFill'),
+        progLabel=document.getElementById('progLabel'), progPct=document.getElementById('progPct');
+  const feed=document.getElementById('feed'), fbody=document.getElementById('fbody');
+  const result=document.getElementById('result'), errbox=document.getElementById('errbox'), again=document.getElementById('again');
+  let busy=false, audioCtx=null, dlUrl=null;
+
+  /* gentle two-tone chime — context created on the upload gesture so it can play from a background tab */
+  function armAudio(){ try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} }
+  function chime(){
+    if(!audioCtx) return;
+    try{
+      const t=audioCtx.currentTime;
+      [[523.25,0],[783.99,0.18]].forEach(([f,dt])=>{
+        const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+        o.type='sine'; o.frequency.value=f;
+        g.gain.setValueAtTime(0,t+dt);
+        g.gain.linearRampToValueAtTime(0.22,t+dt+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+dt+1.6);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(t+dt); o.stop(t+dt+1.7);
+      });
+    }catch(e){}
+  }
+
+  function typeInto(el, text){
+    let i=0;
+    const cur=document.createElement('span'); cur.className='cursor';
+    el.appendChild(cur);
+    (function step(){
+      const chunk=text.slice(i, i+3);
+      i+=3;
+      cur.before(document.createTextNode(chunk));
+      if(i<text.length) setTimeout(step, 12);
+      else cur.remove();
+      fbody.scrollTop=fbody.scrollHeight;
+    })();
+  }
+  function addMsg(kind, text, typed){
+    const m=document.createElement('div'); m.className='msg '+kind;
+    const who=document.createElement('span'); who.className='who';
+    who.textContent = kind==='claude' ? '✳' : (kind==='warn' ? '!' : '·');
+    const txt=document.createElement('span'); txt.className='txt';
+    m.appendChild(who); m.appendChild(txt); fbody.appendChild(m);
+    if(typed) typeInto(txt, text); else { txt.textContent=text; }
+    fbody.scrollTop=fbody.scrollHeight;
+  }
+
+  const ui={
+    log:(k,m)=>addMsg(k==='warn'?'warn':'sys', m, false),
+    claude:(m)=>addMsg('claude', m, true),
+    progress:(p,l)=>{ progFill.style.width=p+'%'; progPct.textContent=p+'%'; if(l) progLabel.textContent=l; },
+    error:(m)=>{ errbox.textContent='✕ '+m; errbox.classList.add('show'); },
+    done:(blob, fname, summary, secs)=>{
+      if(dlUrl) URL.revokeObjectURL(dlUrl);
+      dlUrl=URL.createObjectURL(blob);
+      const btn=document.getElementById('dlbtn');
+      btn.href=dlUrl; btn.setAttribute('download', fname);
+      document.getElementById('resSub').textContent=fname+' · completed in '+secs;
+      document.getElementById('resSum').textContent=summary||'';
+      result.classList.add('show');
+      again.classList.add('show');
+      feed.classList.add('idle');
+      feed.querySelector('.ft').textContent='Done';
+      document.title='✓ Workbook ready — RFP Workbook Creator';
+      chime();
+    }
+  };
+
+  async function start(file){
+    if(busy) return;
+    if(!EMBEDDED){
+      errbox.innerHTML='✕ <b>AI is only available inside the editor preview.</b> This page is open in a standalone tab, where there\u2019s no connection to Claude — that\u2019s why runs stall at \u201cConnecting\u201d. Go back to the editor and run it in the preview pane there.';
+      errbox.classList.add('show');
+      return;
+    }
+    busy=true; armAudio();
+    drop.classList.add('busy');
+    result.classList.remove('show'); again.classList.remove('show');
+    errbox.classList.remove('show');
+    feed.classList.remove('idle'); feed.querySelector('.ft').textContent='Claude is working';
+    fbody.innerHTML='';
+    prog.classList.add('show'); feed.classList.add('show');
+    document.title='Working… — RFP Workbook Creator';
+    try{
+      await window.RfpEngine.run(file, ui);
+    }catch(err){
+      ui.error((err&&err.message)?err.message:'Something went wrong — please try again.');
+      feed.classList.add('idle'); feed.querySelector('.ft').textContent='Stopped';
+      document.title='RFP Workbook Creator';
+    }finally{
+      busy=false; drop.classList.remove('busy'); fileIn.value='';
+    }
+  }
+
+  fileIn.addEventListener('change',()=>{ if(fileIn.files[0]) start(fileIn.files[0]); });
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) start(f); });
+  again.addEventListener('click',()=>{
+    result.classList.remove('show'); again.classList.remove('show');
+    prog.classList.remove('show'); feed.classList.remove('show');
+    errbox.classList.remove('show');
+    document.title='RFP Workbook Creator';
+    fileIn.click();
+  });
+
+  if(!EMBEDDED){
+    errbox.innerHTML='⚠ <b>Heads up:</b> this page is open in a standalone browser tab, where the AI connection isn\u2019t available — uploads here will stall at \u201cConnecting\u201d. Use the page <b>inside the editor\u2019s preview pane</b> instead.';
+    errbox.classList.add('show');
+  }
+})();
+
+const TWK_FONTS={ soft:['"Poppins"','"Mulish"'], rounded:['"Nunito"','"Nunito"'], modern:['"Space Grotesk"','"Space Grotesk"'] };
+window.applyWorkflowTweaks=function(t){
+  const b=document.body, r=document.documentElement.style;
+  if(t.theme) b.dataset.theme=t.theme;
+  if(t.palette) b.dataset.palette=t.palette;
+  if(t.cards) b.dataset.cards=t.cards;
+  if(t.bg) b.dataset.bg=t.bg;
+  if(t.radius!=null) r.setProperty('--radius', t.radius+'px');
+  const f=TWK_FONTS[t.font]||TWK_FONTS.soft;
+  r.setProperty('--font-display', f[0]+',system-ui,sans-serif');
+  r.setProperty('--font-body', f[1]+',system-ui,sans-serif');
+  r.setProperty('--font-label', f[1]+',system-ui,sans-serif');
+};
+</script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="workflow-tweaks.jsx"></script>
+</body>
+</html>

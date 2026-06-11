@@ -6,6 +6,7 @@
     { key:'chart',  label:'Workflow Chart',          href:'index.html' },
     { key:'intake', label:'Intake & Case Creation',  href:'Intake and Case Creation Playbook.html' },
     { key:'gonogo', label:'Go / No-Go Scorecard',    href:'Go No-Go Scorecard.html' },
+    { key:'workbook', label:'RFP Workbook Creator',  href:'RFP Workbook Creator.html' },
     { key:'matrix', label:'Responsibility Matrix',   href:'Responsibility Matrix.html' }
   ];
 

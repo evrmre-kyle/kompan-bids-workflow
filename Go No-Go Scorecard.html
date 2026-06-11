@@ -66,6 +66,35 @@ header{position:sticky;top:var(--sn-h,54px);z-index:40;display:flex;align-items:
 .intro h2{font-family:var(--font-display);font-size:32px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px;text-wrap:balance}
 .intro a{color:color-mix(in oklab,var(--sales) 40%,var(--ink));font-weight:600}
 
+/* RFP auto-score */
+.rfp{margin-bottom:26px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden}
+.rfp .rhead{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line)}
+.rfp .rhead .ai{font-family:var(--font-label);font-size:9.5px;font-weight:700;letter-spacing:.1em;color:#fff;
+  background:linear-gradient(135deg,var(--sales),var(--decision));padding:3px 9px;border-radius:999px}
+.rfp .rhead .rt{font-family:var(--font-display);font-size:15px;font-weight:600}
+.rfp .rbody{padding:16px 20px 18px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;
+  border:2px dashed color-mix(in oklab,var(--sales) 45%,var(--line));border-radius:14px;padding:26px 18px;
+  background:color-mix(in oklab,var(--sales) 5%,var(--panel));cursor:pointer;transition:all .15s ease}
+.drop:hover,.drop.over{background:color-mix(in oklab,var(--sales) 11%,var(--panel));border-color:color-mix(in oklab,var(--sales) 70%,var(--line))}
+.drop .di{font-size:22px;line-height:1}
+.drop .dt{font-family:var(--font-display);font-size:14.5px;font-weight:600}
+.drop .dt span{color:color-mix(in oklab,var(--sales) 42%,var(--ink));text-decoration:underline}
+.drop .dh{font-size:12px;color:var(--ink-faint)}
+.drop input{display:none}
+.rfp .status{display:none;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;margin-top:14px;
+  font-size:13.5px;font-weight:600;background:var(--panel-hi);border:1px solid var(--line);color:var(--ink-dim)}
+.rfp .status.show{display:flex}
+.rfp .status.err{background:color-mix(in oklab,var(--nogo) 9%,var(--panel));border-color:color-mix(in oklab,var(--nogo) 35%,transparent);color:color-mix(in oklab,var(--nogo) 55%,var(--ink))}
+.rfp .status.ok{background:color-mix(in oklab,var(--go) 9%,var(--panel));border-color:color-mix(in oklab,var(--go) 35%,transparent);color:color-mix(in oklab,var(--go) 50%,var(--ink))}
+.spinner{flex:none;width:18px;height:18px;border-radius:50%;border:2.5px solid color-mix(in oklab,var(--sales) 30%,transparent);
+  border-top-color:var(--sales);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+td.q .airec{display:block;font-weight:500;font-size:11.5px;line-height:1.45;margin-top:6px;padding:6px 9px;border-radius:8px;
+  background:color-mix(in oklab,var(--sales) 9%,transparent);border:1px solid color-mix(in oklab,var(--sales) 24%,transparent);
+  color:color-mix(in oklab,var(--sales) 38%,var(--ink-dim))}
+td.q .airec b{font-size:9.5px;letter-spacing:.08em;color:color-mix(in oklab,var(--sales) 48%,var(--ink))}
+
 /* scorecard table */
 .tableCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--card-shadow);overflow:hidden}
 .tscroll{overflow-x:auto}
@@ -163,6 +192,19 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
     <h2>Should we pursue this bid?</h2>
     <p>This is the team's Sales Probability Form behind the <a href="index.html">GO / NO-GO decision</a> on the operational workflow. Score each question by clicking the cell that best describes the opportunity (or typing a score). The total updates live — the verdict appears at the bottom.</p>
   </section>
+
+  <div class="rfp">
+    <div class="rhead"><span class="ai">AI</span><span class="rt">Auto-score from an RFP document</span></div>
+    <div class="rbody">
+      <label class="drop" id="drop">
+        <span class="di">↑</span>
+        <span class="dt">Drop an RFP here or <span>browse</span></span>
+        <span class="dh">PDF, DOCX or TXT · scores are suggestions — review &amp; adjust before deciding</span>
+        <input id="rfpFile" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+      </label>
+      <div class="status" id="rfpStatus"></div>
+    </div>
+  </div>
 
   <div class="tableCard">
     <div class="tscroll">
@@ -352,12 +394,121 @@ tfoot .tv{text-align:center;font-size:20px;font-weight:700}
     if(!confirm('Clear all fields and scores?')) return;
     fComments.value='';
     fThreshold.value=50;
-    rows.forEach(r=>r.querySelector('input').value='');
+    rows.forEach(r=>{ r.querySelector('input').value=''; const n=r.querySelector('td.q .airec'); if(n) n.remove(); });
+    statusEl.className='status'; statusEl.innerHTML='';
     recalc();
   });
 
   load();
   recalc();
+
+  /* ---------- RFP auto-score ---------- */
+  const drop=document.getElementById('drop'), fileIn=document.getElementById('rfpFile'), statusEl=document.getElementById('rfpStatus');
+  let busy=false;
+
+  function setStatus(kind,html){
+    statusEl.className='status show'+(kind?' '+kind:'');
+    statusEl.innerHTML=html;
+  }
+
+  async function extractPdf(buf){
+    const lib=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs');
+    lib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
+    const doc=await lib.getDocument({data:new Uint8Array(buf)}).promise;
+    let out='';
+    const n=Math.min(doc.numPages,40);
+    for(let i=1;i<=n;i++){
+      const tc=await (await doc.getPage(i)).getTextContent();
+      out+=tc.items.map(it=>it.str).join(' ')+'\n';
+      if(out.length>60000) break;
+    }
+    return out;
+  }
+
+  async function extractDocx(buf){
+    const b=new Uint8Array(buf);
+    const u32=(o)=>b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24);
+    const u16=(o)=>b[o]|(b[o+1]<<8);
+    for(let i=0;i+4<b.length;i++){
+      if(b[i]!==0x50||b[i+1]!==0x4b||b[i+2]!==0x03||b[i+3]!==0x04) continue;
+      const nameLen=u16(i+26), extraLen=u16(i+28);
+      const name=new TextDecoder().decode(b.slice(i+30,i+30+nameLen));
+      if(name!=='word/document.xml') continue;
+      const comp=u16(i+8), size=u32(i+18);
+      const data=b.slice(i+30+nameLen+extraLen, i+30+nameLen+extraLen+size);
+      let xml;
+      if(comp===0){ xml=new TextDecoder().decode(data); }
+      else {
+        const ds=new DecompressionStream('deflate-raw');
+        xml=await new Response(new Blob([data]).stream().pipeThrough(ds)).text();
+      }
+      return xml.replace(/<w:p[ >]/g,'\n<w:p ').replace(/<[^>]+>/g,' ').replace(/[ \t]+/g,' ');
+    }
+    throw new Error('Could not read this .docx file');
+  }
+
+  async function extractText(file){
+    const name=file.name.toLowerCase();
+    if(name.endsWith('.pdf')) return extractPdf(await file.arrayBuffer());
+    if(name.endsWith('.docx')) return extractDocx(await file.arrayBuffer());
+    return file.text();
+  }
+
+  const QUESTIONS=[
+    ['q1','When did we (Kompan, a playground/recreation equipment supplier) find out about the opportunity / get into the buying process? 0=only validating a competitor\'s price, 5=customer is openly seeking several suppliers, 10=we are in at specification time'],
+    ['q2','How strong is Kompan on the required products/solution vs competitors? 0=competitors strong, 5=on par, 10=Kompan strong (e.g. Corocord ropes, Robinia wood)'],
+    ['q3','Balance of core vs non-core scope (core = standard playground/fitness equipment). 0=non-core heavy (25-40% core), 5=medium (40-50% core), 10=core heavy (50-100%)'],
+    ['q4','Value of the opportunity. 0=$0-150k, 5=$150-300k, 10=$300k+'],
+    ['q5','Proposal turnaround time from kickoff. 0=<10 working days, 5=10-15 working days, 10=16+ working days (use bid due date vs typical kickoff)'],
+    ['q6','Current relationship with this customer. 0=poor/none mentioned, 5=medium (won projects in last 1-3 years), 10=strong (won within a year). If the document gives no evidence, score null'],
+    ['q7','Expected competitive scene. 0=low-bid/low-margin or 6+ competitors, 5=mid value or 3-6 competitors, 10=best-value selection for fixed budget or <=2 competitors'],
+    ['q8','Reference sites near the project location. If the document gives no evidence of our references, score null. 0=>1hr away, 5=30-60min, 10=<30min'],
+    ['q9','Customer decision-making process. 0=judged only on the submission, 5=submission-only but we have stakeholder relationships, 10=we can present/interview'],
+    ['q10','How soon will the order be placed? 0=funding not secured, 5=ordered in 1-3 months, 10=ordered in <1 month']
+  ];
+
+  async function scoreRfp(file){
+    if(busy) return;
+    try{ if(window.self===window.top){ setStatus('err','✕ AI scoring is only available inside the editor preview — this standalone tab has no connection to Claude.'); return; } }catch(e){}
+    busy=true; drop.style.pointerEvents='none'; drop.style.opacity='.55';
+    try{
+      setStatus('','<span class="spinner"></span><span>Reading “'+file.name.replace(/[<>&]/g,'')+'”…</span>');
+      let text=(await extractText(file)).replace(/\s+/g,' ').trim();
+      if(!text || text.length<200) throw new Error('Couldn\'t extract enough text from this file — is it a scanned image?');
+      text=text.slice(0,48000);
+      setStatus('','<span class="spinner"></span><span>Analyzing the RFP and scoring the 10 questions…</span>');
+      const prompt='You are scoring a playground-equipment RFP for Kompan\'s bid/no-bid Sales Probability Form.\n\nRFP DOCUMENT TEXT:\n"""\n'+text+'\n"""\n\nScore each question 0, 5 or 10 strictly per the criteria. If the document truly gives no evidence for a question, use null instead of guessing.\n\n'+QUESTIONS.map(q=>q[0]+': '+q[1]).join('\n')+'\n\nRespond with ONLY minified JSON, no markdown fences, in exactly this shape:\n{"q1":{"s":10,"r":"reason under 12 words"},...,"q10":{...}}\nUse null for s when there is no evidence (with r explaining what is missing).';
+      const raw=await window.claude.complete(prompt);
+      const m=raw.match(/\{[\s\S]*\}/);
+      if(!m) throw new Error('The AI response could not be parsed — please try again.');
+      const res=JSON.parse(m[0]);
+      let filled=0, skipped=0;
+      rows.forEach(r=>{
+        const q=res[r.dataset.q];
+        const qcell=r.querySelector('td.q');
+        const old=qcell.querySelector('.airec'); if(old) old.remove();
+        if(!q) return;
+        const inp=r.querySelector('input');
+        if(q.s===0||q.s===5||q.s===10){ inp.value=q.s; filled++; }
+        else { inp.value=''; skipped++; }
+        const note=document.createElement('span');
+        note.className='airec';
+        note.innerHTML='<b>AI'+(q.s==null?' · NO EVIDENCE':'')+'</b> '+String(q.r||'').replace(/[<>&]/g,'');
+        qcell.appendChild(note);
+      });
+      recalc();
+      setStatus('ok','✓ Scored '+filled+' of '+rows.length+' questions from “'+file.name.replace(/[<>&]/g,'')+'”'+(skipped?' — '+skipped+' left blank (no evidence in the document)':'')+'. Review the AI notes and adjust before deciding.');
+    }catch(err){
+      setStatus('err','✕ '+(err && err.message ? err.message : 'Something went wrong — please try again.'));
+    }finally{
+      busy=false; drop.style.pointerEvents=''; drop.style.opacity=''; fileIn.value='';
+    }
+  }
+
+  fileIn.addEventListener('change',()=>{ if(fileIn.files[0]) scoreRfp(fileIn.files[0]); });
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>{ const f=e.dataTransfer.files && e.dataTransfer.files[0]; if(f) scoreRfp(f); });
 })();
 
 const TWK_FONTS={ soft:['"Poppins"','"Mulish"'], rounded:['"Nunito"','"Nunito"'], modern:['"Space Grotesk"','"Space Grotesk"'] };
